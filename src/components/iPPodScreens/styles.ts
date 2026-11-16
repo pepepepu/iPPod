@@ -21,11 +21,11 @@ const bootProgressAnim = keyframes`
   }
 `;
 
-export const ScreenWrapper = styled.div`
-  width: 540px;
-  height: 405px;
+export const ScreenWrapper = styled.div<{ $isMobile?: boolean }>`
+  width: ${({ $isMobile }) => ($isMobile ? '100%' : '540px')};
+  height: ${({ $isMobile }) => ($isMobile ? '100%' : '405px')};
   background-color: ${theme.colors.lcdWhite};
-  border-radius: 10px;
+  border-radius: ${({ $isMobile }) => ($isMobile ? '12px' : '10px')};
   border: 4px solid ${theme.colors.lcdBorder};
   box-shadow: ${theme.shadows.lcdInnerShadow};
   position: relative;
@@ -103,6 +103,10 @@ export const BootTagEmoticon = styled.div<{ $winking: boolean }>`
   transition: transform 0.15s ease, color 0.15s ease;
   transform: ${({ $winking }) =>
     $winking ? 'scale(1.08) rotate(-4deg)' : 'scale(1)'};
+
+  @media (max-width: 768px) {
+    font-size: 48px;
+  }
 `;
 
 export const BootLoadingTrack = styled.div`
@@ -134,6 +138,12 @@ export const StatusBar = styled.header`
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
   z-index: 2;
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
 `;
 
 export const StatusRight = styled.div`
@@ -176,6 +186,10 @@ export const SplitBody = styled.div`
   grid-template-columns: 50% 50%;
   min-height: 0;
   z-index: 2;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 48% 52%;
+  }
 `;
 
 export const FullScreenBody = styled.div`
@@ -187,7 +201,11 @@ export const FullScreenBody = styled.div`
   background: linear-gradient(180deg, #f9fbff 0%, #e4ebf5 100%);
   z-index: 2;
   padding: 10px 16px 8px;
-  overflow: hidden;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 8px 12px;
+  }
 `;
 
 export const LeftPane = styled.div`
@@ -200,7 +218,7 @@ export const LeftPane = styled.div`
   overflow-y: auto;
 
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 4px;
   }
 
   &::-webkit-scrollbar-track {
@@ -244,6 +262,12 @@ export const MenuItemRow = styled.li<{ $active: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  @media (max-width: 768px) {
+    min-height: 36px;
+    padding: 4px 10px;
+    font-size: 12.5px;
+  }
 `;
 
 export const RightPane = styled.div`
@@ -256,6 +280,10 @@ export const RightPane = styled.div`
   text-align: center;
   position: relative;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    padding: 8px 10px;
+  }
 `;
 
 export const Y2KGradientCover = styled.div<{
@@ -297,6 +325,13 @@ export const Y2KGradientCover = styled.div<{
     transform: rotate(-18deg);
     pointer-events: none;
   }
+
+  @media (max-width: 768px) {
+    width: ${({ $size }) => ($size ? `${Math.min($size, 84)}px` : '92px')};
+    height: ${({ $size }) => ($size ? `${Math.min($size, 84)}px` : '92px')};
+    padding: 7px;
+    margin-bottom: 6px;
+  }
 `;
 
 export const AlbumOpticalRing = styled.div`
@@ -313,6 +348,12 @@ export const AlbumOpticalRing = styled.div`
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
   margin-top: 8px;
   z-index: 1;
+
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    margin-top: 4px;
+  }
 `;
 
 export const ArtworkBadge = styled.span`
@@ -330,6 +371,11 @@ export const ArtworkBadge = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   z-index: 1;
+
+  @media (max-width: 768px) {
+    font-size: 7.5px;
+    padding: 2px 5px;
+  }
 `;
 
 export const PreviewTitle = styled.h2`
@@ -337,6 +383,11 @@ export const PreviewTitle = styled.h2`
   font-weight: 700;
   color: #14181f;
   margin-bottom: 3px;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
 `;
 
 export const PreviewSubtitle = styled.p`
@@ -344,6 +395,11 @@ export const PreviewSubtitle = styled.p`
   color: #3b4556;
   line-height: 1.35;
   max-width: 235px;
+
+  @media (max-width: 768px) {
+    font-size: 10.5px;
+    line-height: 1.25;
+  }
 `;
 
 export const TagRow = styled.div`
@@ -362,6 +418,11 @@ export const MiniTag = styled.span`
   background: #ffffff;
   border: 1px solid #b8c2d1;
   color: #1f2633;
+
+  @media (max-width: 768px) {
+    font-size: 8.5px;
+    padding: 1px 5px;
+  }
 `;
 
 export const DetailHeader = styled.div`
@@ -390,6 +451,12 @@ export const DetailMiniCover = styled.div<{ $gradient: string }>`
   font-weight: 900;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+
+  @media (max-width: 768px) {
+    width: 48px;
+    height: 48px;
+    font-size: 11px;
+  }
 `;
 
 export const DetailTitleBlock = styled.div`
@@ -412,6 +479,15 @@ export const DetailTitleBlock = styled.div`
     font-weight: 600;
     color: #1362d6;
   }
+
+  @media (max-width: 768px) {
+    h3 {
+      font-size: 14px;
+    }
+    span {
+      font-size: 10px;
+    }
+  }
 `;
 
 export const DetailDescription = styled.p`
@@ -423,6 +499,13 @@ export const DetailDescription = styled.p`
   border-radius: 6px;
   padding: 8px 10px;
   margin: 6px 0;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+    line-height: 1.3;
+    padding: 6px 8px;
+    margin: 5px 0;
+  }
 `;
 
 export const ActionButtonsList = styled.div`
@@ -437,6 +520,12 @@ export const NowPlayingGrid = styled.div`
   gap: 16px;
   align-items: center;
   margin-top: 6px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+    margin-top: 2px;
+  }
 `;
 
 export const TrackMeta = styled.div`
@@ -465,6 +554,22 @@ export const TrackMeta = styled.div`
   p.album {
     font-size: 12px;
     color: #5a6578;
+  }
+
+  @media (max-width: 768px) {
+    gap: 3px;
+    span.index {
+      font-size: 10.5px;
+    }
+    h2 {
+      font-size: 16px;
+    }
+    p.artist {
+      font-size: 12.5px;
+    }
+    p.album {
+      font-size: 11px;
+    }
   }
 `;
 
@@ -519,6 +624,12 @@ export const EqualizerBox = styled.div`
   margin-bottom: 6px;
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8);
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    height: 58px;
+    padding: 6px;
+    margin-bottom: 4px;
+  }
 `;
 
 export const EqBarColumn = styled.div`
@@ -568,6 +679,18 @@ export const InfoTextCard = styled.div`
     line-height: 1.36;
     font-weight: 500;
     color: #1f2633;
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 8px;
+    margin-top: 4px;
+    span.label {
+      font-size: 8.5px;
+    }
+    p.val {
+      font-size: 10px;
+      line-height: 1.28;
+    }
   }
 `;
 

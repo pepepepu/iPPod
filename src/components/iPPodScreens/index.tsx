@@ -102,7 +102,7 @@ export function IPPodScreens({
 
   if (powerStatus === 'off') {
     return (
-      <S.ScreenWrapper>
+      <S.ScreenWrapper $isMobile={isMobile}>
         <S.BlankOffScreen onClick={onTogglePower} />
       </S.ScreenWrapper>
     );
@@ -110,7 +110,7 @@ export function IPPodScreens({
 
   if (powerStatus === 'booting') {
     return (
-      <S.ScreenWrapper>
+      <S.ScreenWrapper $isMobile={isMobile}>
         <S.BootScreen>
           <S.BootTagEmoticon $winking={bootWink}>
             {bootWink ? ';P' : ':P'}
@@ -181,7 +181,8 @@ export function IPPodScreens({
 
           <S.RightPane>
             <S.Y2KGradientCover
-              $gradient={homeContent.about.y2kGradient} $size={94}
+              $gradient={homeContent.about.y2kGradient}
+              $size={94}
             >
               <S.AlbumOpticalRing />
               <S.ArtworkBadge>{activeBioTrack.tag}</S.ArtworkBadge>
@@ -343,7 +344,8 @@ export function IPPodScreens({
         <S.FullScreenBody>
           <S.NowPlayingGrid>
             <S.Y2KGradientCover
-              $gradient={currentTrack.y2kGradient} $size={145}
+              $gradient={currentTrack.y2kGradient}
+              $size={145}
             >
               <S.AlbumOpticalRing />
               <S.ArtworkBadge>128 KBPS</S.ArtworkBadge>
@@ -410,7 +412,7 @@ export function IPPodScreens({
   };
 
   return (
-    <S.ScreenWrapper>
+    <S.ScreenWrapper $isMobile={isMobile}>
       <S.StatusBar>
         <span>{getHeaderTitle()}</span>
         <S.StatusRight>

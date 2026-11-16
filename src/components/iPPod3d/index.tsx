@@ -8,9 +8,9 @@ import {
   type WheelEvent,
 } from 'react';
 import {
+  BsFilePlay,
   BsFillSkipBackwardFill,
   BsFillSkipForwardFill,
-  BsPauseFill,
 } from 'react-icons/bs';
 import { ThemeProvider } from 'styled-components';
 import { Group } from 'three';
@@ -112,31 +112,6 @@ export function IPPod3D({
       },
     });
 
-    if (isMobile) {
-      gsap.to(ipodGroupRef.current.scale, {
-        x: 0.72,
-        y: 0.72,
-        z: 0.72,
-        duration: 0.75,
-        ease: 'power3.inOut',
-      });
-      gsap.to(ipodGroupRef.current.position, {
-        x: 0,
-        y: 0.05,
-        z: 0,
-        duration: 0.75,
-        ease: 'power3.inOut',
-      });
-      gsap.to(ipodGroupRef.current.rotation, {
-        x: 0,
-        y: 0,
-        z: 0,
-        duration: 0.75,
-        ease: 'power3.inOut',
-      });
-      return;
-    }
-
     if (isActive) {
       gsap.to(ipodGroupRef.current.scale, {
         x: 1.55,
@@ -182,7 +157,7 @@ export function IPPod3D({
         ease: 'power3.inOut',
       });
     }
-  }, [isActive, isMobile, camera, controlsRef]);
+  }, [isActive, camera, controlsRef]);
 
   const handleWheelScroll = (event: WheelEvent<HTMLDivElement>) => {
     if (powerStatus !== 'on') return;
@@ -232,7 +207,7 @@ export function IPPod3D({
   };
 
   return (
-    <group ref={ipodGroupRef} scale={isMobile ? 0.72 : 0.76}>
+    <group ref={ipodGroupRef} scale={0.76}>
       <RoundedBox
         args={[0.12, 0.48, 0.16]}
         radius={0.03}
@@ -343,7 +318,7 @@ export function IPPod3D({
         />
       </RoundedBox>
 
-      <Html transform distanceFactor={1.65} position={[0, 1.12, 0.18]}>
+      <Html center transform distanceFactor={1.65} position={[0, 1.12, 0.18]}>
         <ThemeProvider theme={theme}>
           <IPPodScreens
             isMobile={isMobile}
@@ -389,7 +364,7 @@ export function IPPod3D({
         />
       </mesh>
 
-      <Html transform distanceFactor={1.65} position={[0, -0.98, 0.19]}>
+      <Html center transform distanceFactor={1.65} position={[0, -0.98, 0.19]}>
         <ThemeProvider theme={theme}>
           <S.WheelOverlay
             ref={wheelElementRef}
@@ -428,7 +403,7 @@ export function IPPod3D({
               $position="bottom"
               onClick={powerStatus === 'on' ? onPlayPause : onTogglePower}
             >
-              <BsPauseFill size={18} />
+              <BsFilePlay size={18} />
             </S.WheelButton>
 
             <S.CenterSelectButton

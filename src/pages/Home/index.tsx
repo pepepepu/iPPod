@@ -1,9 +1,21 @@
 import { ContactShadows, Environment, Float, OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import {
+  type PointerEvent as ReactPointerEvent,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  BsFillSkipBackwardFill,
+  BsFillSkipForwardFill,
+  BsPauseFill,
+  BsPower,
+} from 'react-icons/bs';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { IPPod3D } from '../../components/iPPod3d';
-import type { PowerStatus } from '../../components/iPPodScreens';
+import { IPPodScreens, type PowerStatus } from '../../components/iPPodScreens';
 import {
   getProjectDetailActions,
   homeContent,
@@ -18,6 +30,8 @@ import * as S from './styles';
 
 export function Home() {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const mobileWheelRef = useRef<HTMLDivElement>(null);
+  const lastMobileAngleRef = useRef<number | null>(null);
   const bootTimersRef = useRef<number[]>([]);
   const volumeTimerRef = useRef<number | null>(null);
 
@@ -226,6 +240,47 @@ export function Home() {
     setIsPlaying((prev) => !prev);
   };
 
+  const computeMobileWheelAngle = (clientX: number, clientY: number) => {
+    if (!mobileWheelRef.current) return null;
+    const rect = mobileWheelRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    return Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+  };
+
+  const handleMobileWheelPointerDown = (
+    e: ReactPointerEvent<HTMLDivElement>
+  ) => {
+    if (powerStatus !== 'on') return;
+    lastMobileAngleRef.current = computeMobileWheelAngle(e.clientX, e.clientY);
+  };
+
+  const handleMobileWheelPointerMove = (
+    e: ReactPointerEvent<HTMLDivElement>
+  ) => {
+    if (powerStatus !== 'on' || lastMobileAngleRef.current === null) return;
+
+    const currentAngle = computeMobileWheelAngle(e.clientX, e.clientY);
+    if (currentAngle === null) return;
+
+    let delta = currentAngle - lastMobileAngleRef.current;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+
+    if (Math.abs(delta) >= 22) {
+      if (delta > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+      lastMobileAngleRef.current = currentAngle;
+    }
+  };
+
+  const handleMobileWheelPointerUp = () => {
+    lastMobileAngleRef.current = null;
+  };
+
   useEffect(() => {
     return () => {
       clearBootTimers();
@@ -287,13 +342,128 @@ export function Home() {
 
   const isDeviceActive = powerStatus !== 'off';
 
+  if (isMobile) {
+    return (
+      <S.MobileVirtualIPPod
+        $bodyColor={colorPreset.bodyColor}
+        $backplateColor={colorPreset.backplateColor}
+      >
+        <S.MobileHardwareTopBar>
+          <S.MobileVolumeButtonsGroup>
+            <S.MobileHardwareBtn type="button" onClick={handleVolumeDown}>
+              VOL -
+            </S.MobileHardwareBtn>
+            <S.MobileHardwareBtn type="button" onClick={handleVolumeUp}>
+              VOL +
+            </S.MobileHardwareBtn>
+          </S.MobileVolumeButtonsGroup>
+
+          <S.MobileStatusText>
+            <S.StatusDot $isOn={isDeviceActive} />
+            <span>iPPod • {isDeviceActive ? 'ONLINE' : 'OFFLINE'}</span>
+          </S.MobileStatusText>
+
+          <S.MobileHardwareBtn
+            type="button"
+            $activePower={isDeviceActive}
+            onClick={handleTogglePower}
+          >
+            <BsPower size={13} />
+            <span>{isDeviceActive ? 'ON' : 'OFF'}</span>
+          </S.MobileHardwareBtn>
+        </S.MobileHardwareTopBar>
+
+        <S.MobileScreenBezel>
+          <IPPodScreens
+            isMobile
+            powerStatus={powerStatus}
+            bootWink={bootWink}
+            currentScreen={currentScreen}
+            selectedIndex={selectedIndex}
+            activeProjectIndex={activeProjectIndex}
+            trackIndex={trackIndex}
+            isPlaying={isPlaying}
+            elapsedSeconds={elapsedSeconds}
+            volume={volume}
+            showVolumeHud={showVolumeHud}
+            statusFeedback={statusFeedback}
+            onTogglePower={handleTogglePower}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            onSelect={handleSelect}
+            onMenuBack={handleMenuBack}
+            onHoverIndex={setSelectedIndex}
+            onNavigateScreen={navigateToScreen}
+            onOpenProjectDetail={(idx) => {
+              setActiveProjectIndex(idx);
+              navigateToScreen('project-detail', 0);
+            }}
+            onExecuteProjectAction={executeProjectAction}
+          />
+        </S.MobileScreenBezel>
+
+        <S.MobileWheelSection>
+          <S.MobileClickWheel
+            ref={mobileWheelRef}
+            $wheelColor={colorPreset.wheelColor}
+            onPointerDown={handleMobileWheelPointerDown}
+            onPointerMove={handleMobileWheelPointerMove}
+            onPointerUp={handleMobileWheelPointerUp}
+            onPointerLeave={handleMobileWheelPointerUp}
+          >
+            <S.MobileWheelBtn
+              type="button"
+              $position="top"
+              onClick={powerStatus === 'on' ? handleMenuBack : handleTogglePower}
+            >
+              MENU
+            </S.MobileWheelBtn>
+
+            <S.MobileWheelBtn
+              type="button"
+              $position="left"
+              onClick={powerStatus === 'on' ? handlePrev : handleTogglePower}
+            >
+              <BsFillSkipBackwardFill size={18} />
+            </S.MobileWheelBtn>
+
+            <S.MobileWheelBtn
+              type="button"
+              $position="right"
+              onClick={powerStatus === 'on' ? handleNext : handleTogglePower}
+            >
+              <BsFillSkipForwardFill size={18} />
+            </S.MobileWheelBtn>
+
+            <S.MobileWheelBtn
+              type="button"
+              $position="bottom"
+              onClick={
+                powerStatus === 'on' ? handlePlayPause : handleTogglePower
+              }
+            >
+              <BsPauseFill size={20} />
+            </S.MobileWheelBtn>
+
+            <S.MobileCenterSelectBtn
+              type="button"
+              $centerColor={colorPreset.centerButtonColor}
+              onClick={powerStatus === 'on' ? handleSelect : handleTogglePower}
+              aria-label="Selecionar no iPPod"
+            />
+          </S.MobileClickWheel>
+        </S.MobileWheelSection>
+      </S.MobileVirtualIPPod>
+    );
+  }
+
   return (
     <S.ViewportContainer>
       <S.TopHeaderBadge>
         <S.StatusDot $isOn={isDeviceActive} />
         <span>
           iPPod • {colorPreset.name.toUpperCase()} •{' '}
-          {isDeviceActive ? 'ONLINE' : 'OFFLINE'}
+          {isDeviceActive ? 'ONLINE' : 'OFFLINE  • PRESSIONE [P] PARA LIGAR'}
         </span>
       </S.TopHeaderBadge>
 
@@ -316,7 +486,7 @@ export function Home() {
               floatIntensity={isDeviceActive ? 0 : 0.18}
             >
               <IPPod3D
-                isMobile={isMobile}
+                isMobile={false}
                 powerStatus={powerStatus}
                 bootWink={bootWink}
                 colorPreset={colorPreset}
@@ -349,7 +519,7 @@ export function Home() {
             </Float>
             <ContactShadows
               position={[0, -2.15, 0]}
-              opacity={isDeviceActive && !isMobile ? 0.12 : 0.34}
+              opacity={isDeviceActive ? 0.12 : 0.34}
               scale={6}
               blur={2.4}
               far={4}
