@@ -439,7 +439,7 @@ export function Home() {
         <S.StatusDot $isOn={isDeviceActive} />
         <span>
           iPPod • {colorPreset.name.toUpperCase()} •{' '}
-          {isDeviceActive ? 'ONLINE' : 'OFFLINE'}
+          {isDeviceActive ? 'ONLINE' : 'OFFLINE • CLIQUE EM [P] PARA LIGAR'}{' '}
         </span>
       </S.TopHeaderBadge>
 
