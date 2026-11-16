@@ -1,0 +1,70 @@
+:root {
+  --studio-bg-center: #f4f6f9;
+  --studio-bg-mid: #d9dfe8;
+  --studio-bg-edge: #b4becc;
+  --frame-white: #ffffff;
+
+  --ippod-space-gray-light: #6e737b;
+  --ippod-space-gray-mid: #4a4e54;
+  --ippod-space-gray-dark: #2c2f33;
+  --ippod-wheel-black: #18191c;
+
+  --lcd-header-top: #e8ecf2;
+  --lcd-header-bottom: #b8c2d1;
+  --lcd-selection-top: #5ca9ff;
+  --lcd-selection-bottom: #1362d6;
+  --lcd-text-dark: #14181f;
+  --lcd-text-muted: #5a6578;
+
+  --font-display: 'Orbitron', sans-serif;
+  --font-lcd: 'VT323', monospace;
+  --font-ui: 'Tahoma', 'Plus Jakarta Sans', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--studio-bg-mid);
+  color: var(--lcd-text-dark);
+  font-family: var(--font-ui);
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+img,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
