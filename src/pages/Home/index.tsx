@@ -571,4 +571,4 @@ export function Home() {
       </S.BottomRightPanel>
     </S.ViewportContainer>
   );
-}
+};
