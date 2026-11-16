@@ -125,70 +125,15 @@ export const MobileVirtualIPPod = styled.section<{
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 12px 14px 20px;
+  padding: 16px 14px 20px;
   overflow: hidden;
-  touch-action: none;
-`;
-
-export const MobileHardwareTopBar = styled.header`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2px 4px 10px;
-  flex-shrink: 0;
-`;
-
-export const MobileVolumeButtonsGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`;
-
-export const MobileHardwareBtn = styled.button<{ $activePower?: boolean }>`
-  height: 28px;
-  padding: 0 11px;
-  border-radius: 6px;
-  background: ${({ $activePower }) =>
-    $activePower
-      ? 'linear-gradient(180deg, #223026 0%, #101712 100%)'
-      : 'linear-gradient(180deg, #e6e9ef 0%, #9ca4b2 100%)'};
-  color: ${({ $activePower }) => ($activePower ? '#39ff14' : '#14181f')};
-  border: 1px solid
-    ${({ $activePower }) => ($activePower ? '#39ff14' : '#6e737b')};
-  box-shadow:
-    0 2px 5px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  font-family: ${theme.fonts.display};
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  touch-action: manipulation;
-
-  &:active {
-    transform: translateY(1px);
-  }
-`;
-
-export const MobileStatusText = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: ${theme.fonts.display};
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 1.4px;
-  color: #f0f4f8;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 `;
 
 export const MobileScreenBezel = styled.div`
   width: 100%;
-  height: 46dvh;
+  height: 48dvh;
   min-height: 250px;
-  max-height: 410px;
+  max-height: 430px;
   background: #121417;
   border-radius: 16px;
   padding: 6px;
@@ -208,12 +153,12 @@ export const MobileWheelSection = styled.div`
 `;
 
 export const MobileClickWheel = styled.div<{ $wheelColor: string }>`
-  width: min(74vw, 38dvh);
-  height: min(74vw, 38dvh);
-  max-width: 290px;
-  max-height: 290px;
-  min-width: 210px;
-  min-height: 210px;
+  width: min(76vw, 40dvh);
+  height: min(76vw, 40dvh);
+  max-width: 300px;
+  max-height: 300px;
+  min-width: 215px;
+  min-height: 215px;
   border-radius: 50%;
   background: radial-gradient(
     circle at 50% 45%,
@@ -284,7 +229,10 @@ export const MobileWheelBtn = styled.button<{
   }
 `;
 
-export const MobileCenterSelectBtn = styled.button<{ $centerColor: string }>`
+export const MobileCenterSelectBtn = styled.button<{
+  $centerColor: string;
+  $isOn: boolean;
+}>`
   width: 36%;
   height: 36%;
   border-radius: 50%;
@@ -294,13 +242,20 @@ export const MobileCenterSelectBtn = styled.button<{ $centerColor: string }>`
     ${({ $centerColor }) => $centerColor} 60%,
     #25282c 100%
   );
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border: 1.5px solid
+    ${({ $isOn }) =>
+    $isOn ? 'rgba(57, 255, 20, 0.55)' : 'rgba(255, 255, 255, 0.25)'};
   box-shadow:
     inset 0 2px 3px rgba(255, 255, 255, 0.35),
     0 4px 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ $isOn }) => ($isOn ? '#39ff14' : '#e6ebf2')};
   touch-action: manipulation;
+  transition: transform 0.12s ease, color 0.2s ease, border-color 0.2s ease;
 
   &:active {
-    transform: scale(0.96);
+    transform: scale(0.95);
   }
 `;

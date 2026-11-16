@@ -10,7 +10,7 @@ import {
 import {
   BsFillSkipBackwardFill,
   BsFillSkipForwardFill,
-  BsPauseFill,
+  BsPauseCircleFill,
   BsPower,
 } from 'react-icons/bs';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -348,31 +348,6 @@ export function Home() {
         $bodyColor={colorPreset.bodyColor}
         $backplateColor={colorPreset.backplateColor}
       >
-        <S.MobileHardwareTopBar>
-          <S.MobileVolumeButtonsGroup>
-            <S.MobileHardwareBtn type="button" onClick={handleVolumeDown}>
-              VOL -
-            </S.MobileHardwareBtn>
-            <S.MobileHardwareBtn type="button" onClick={handleVolumeUp}>
-              VOL +
-            </S.MobileHardwareBtn>
-          </S.MobileVolumeButtonsGroup>
-
-          <S.MobileStatusText>
-            <S.StatusDot $isOn={isDeviceActive} />
-            <span>iPPod • {isDeviceActive ? 'ONLINE' : 'OFFLINE'}</span>
-          </S.MobileStatusText>
-
-          <S.MobileHardwareBtn
-            type="button"
-            $activePower={isDeviceActive}
-            onClick={handleTogglePower}
-          >
-            <BsPower size={13} />
-            <span>{isDeviceActive ? 'ON' : 'OFF'}</span>
-          </S.MobileHardwareBtn>
-        </S.MobileHardwareTopBar>
-
         <S.MobileScreenBezel>
           <IPPodScreens
             isMobile
@@ -414,7 +389,7 @@ export function Home() {
             <S.MobileWheelBtn
               type="button"
               $position="top"
-              onClick={powerStatus === 'on' ? handleMenuBack : handleTogglePower}
+              onClick={handlePrev}
             >
               MENU
             </S.MobileWheelBtn>
@@ -422,7 +397,7 @@ export function Home() {
             <S.MobileWheelBtn
               type="button"
               $position="left"
-              onClick={powerStatus === 'on' ? handlePrev : handleTogglePower}
+              onClick={handleMenuBack}
             >
               <BsFillSkipBackwardFill size={18} />
             </S.MobileWheelBtn>
@@ -430,7 +405,7 @@ export function Home() {
             <S.MobileWheelBtn
               type="button"
               $position="right"
-              onClick={powerStatus === 'on' ? handleNext : handleTogglePower}
+              onClick={handleSelect}
             >
               <BsFillSkipForwardFill size={18} />
             </S.MobileWheelBtn>
@@ -438,19 +413,20 @@ export function Home() {
             <S.MobileWheelBtn
               type="button"
               $position="bottom"
-              onClick={
-                powerStatus === 'on' ? handlePlayPause : handleTogglePower
-              }
+              onClick={handleNext}
             >
-              <BsPauseFill size={20} />
+              <BsPauseCircleFill size={20} />
             </S.MobileWheelBtn>
 
             <S.MobileCenterSelectBtn
               type="button"
               $centerColor={colorPreset.centerButtonColor}
-              onClick={powerStatus === 'on' ? handleSelect : handleTogglePower}
-              aria-label="Selecionar no iPPod"
-            />
+              $isOn={isDeviceActive}
+              onClick={handleTogglePower}
+              aria-label="Ligar ou desligar iPPod"
+            >
+              <BsPower size={24} />
+            </S.MobileCenterSelectBtn>
           </S.MobileClickWheel>
         </S.MobileWheelSection>
       </S.MobileVirtualIPPod>
@@ -463,7 +439,7 @@ export function Home() {
         <S.StatusDot $isOn={isDeviceActive} />
         <span>
           iPPod • {colorPreset.name.toUpperCase()} •{' '}
-          {isDeviceActive ? 'ONLINE' : 'OFFLINE  • PRESSIONE [P] PARA LIGAR'}
+          {isDeviceActive ? 'ONLINE' : 'OFFLINE'}
         </span>
       </S.TopHeaderBadge>
 

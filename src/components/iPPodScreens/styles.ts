@@ -188,7 +188,7 @@ export const SplitBody = styled.div`
   z-index: 2;
 
   @media (max-width: 768px) {
-    grid-template-columns: 48% 52%;
+    grid-template-columns: 46% 54%;
   }
 `;
 
@@ -202,6 +202,8 @@ export const FullScreenBody = styled.div`
   z-index: 2;
   padding: 10px 16px 8px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 
   @media (max-width: 768px) {
     padding: 8px 12px;
@@ -215,7 +217,10 @@ export const LeftPane = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   padding: 2px 0;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -266,7 +271,7 @@ export const MenuItemRow = styled.li<{ $active: boolean }>`
   @media (max-width: 768px) {
     min-height: 36px;
     padding: 4px 10px;
-    font-size: 12.5px;
+    font-size: 12px;
   }
 `;
 
@@ -279,10 +284,27 @@ export const RightPane = styled.div`
   padding: 12px 14px;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #8c98ac;
+    border-radius: 3px;
+  }
 
   @media (max-width: 768px) {
-    padding: 8px 10px;
+    justify-content: flex-start;
+    padding: 10px 8px 14px;
   }
 `;
 
@@ -327,9 +349,9 @@ export const Y2KGradientCover = styled.div<{
   }
 
   @media (max-width: 768px) {
-    width: ${({ $size }) => ($size ? `${Math.min($size, 84)}px` : '92px')};
-    height: ${({ $size }) => ($size ? `${Math.min($size, 84)}px` : '92px')};
-    padding: 7px;
+    width: ${({ $size }) => ($size ? `${Math.min($size, 76)}px` : '82px')};
+    height: ${({ $size }) => ($size ? `${Math.min($size, 76)}px` : '82px')};
+    padding: 6px;
     margin-bottom: 6px;
   }
 `;
@@ -350,9 +372,9 @@ export const AlbumOpticalRing = styled.div`
   z-index: 1;
 
   @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-    margin-top: 4px;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
   }
 `;
 
@@ -373,7 +395,7 @@ export const ArtworkBadge = styled.span`
   z-index: 1;
 
   @media (max-width: 768px) {
-    font-size: 7.5px;
+    font-size: 7px;
     padding: 2px 5px;
   }
 `;
@@ -383,9 +405,10 @@ export const PreviewTitle = styled.h2`
   font-weight: 700;
   color: #14181f;
   margin-bottom: 3px;
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
-    font-size: 13px;
+    font-size: 12.5px;
     margin-bottom: 2px;
   }
 `;
@@ -395,10 +418,13 @@ export const PreviewSubtitle = styled.p`
   color: #3b4556;
   line-height: 1.35;
   max-width: 235px;
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
     font-size: 10.5px;
-    line-height: 1.25;
+    line-height: 1.3;
+    max-width: 100%;
+    word-break: break-word;
   }
 `;
 
@@ -408,6 +434,7 @@ export const TagRow = styled.div`
   justify-content: center;
   gap: 4px;
   margin-top: 6px;
+  flex-shrink: 0;
 `;
 
 export const MiniTag = styled.span`
@@ -453,8 +480,8 @@ export const DetailMiniCover = styled.div<{ $gradient: string }>`
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
 
   @media (max-width: 768px) {
-    width: 48px;
-    height: 48px;
+    width: 46px;
+    height: 46px;
     font-size: 11px;
   }
 `;
@@ -482,7 +509,7 @@ export const DetailTitleBlock = styled.div`
 
   @media (max-width: 768px) {
     h3 {
-      font-size: 14px;
+      font-size: 13.5px;
     }
     span {
       font-size: 10px;
@@ -499,12 +526,17 @@ export const DetailDescription = styled.p`
   border-radius: 6px;
   padding: 8px 10px;
   margin: 6px 0;
+  max-height: 110px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 
   @media (max-width: 768px) {
     font-size: 11px;
-    line-height: 1.3;
+    line-height: 1.35;
     padding: 6px 8px;
     margin: 5px 0;
+    max-height: 92px;
   }
 `;
 
@@ -522,8 +554,8 @@ export const NowPlayingGrid = styled.div`
   margin-top: 6px;
 
   @media (max-width: 768px) {
-    grid-template-columns: 100px 1fr;
-    gap: 12px;
+    grid-template-columns: 92px 1fr;
+    gap: 10px;
     margin-top: 2px;
   }
 `;
@@ -562,13 +594,13 @@ export const TrackMeta = styled.div`
       font-size: 10.5px;
     }
     h2 {
-      font-size: 16px;
+      font-size: 15px;
     }
     p.artist {
-      font-size: 12.5px;
+      font-size: 12px;
     }
     p.album {
-      font-size: 11px;
+      font-size: 10.5px;
     }
   }
 `;
@@ -626,8 +658,8 @@ export const EqualizerBox = styled.div`
   flex-shrink: 0;
 
   @media (max-width: 768px) {
-    height: 58px;
-    padding: 6px;
+    height: 52px;
+    padding: 5px;
     margin-bottom: 4px;
   }
 `;
@@ -665,6 +697,24 @@ export const InfoTextCard = styled.div`
   width: 100%;
   text-align: left;
   margin-top: 6px;
+  flex-shrink: 0;
+  max-height: 115px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 3px;
+  }
 
   span.label {
     font-size: 9.5px;
@@ -676,20 +726,24 @@ export const InfoTextCard = styled.div`
 
   p.val {
     font-size: 11px;
-    line-height: 1.36;
+    line-height: 1.38;
     font-weight: 500;
     color: #1f2633;
+    word-break: break-word;
   }
 
   @media (max-width: 768px) {
     padding: 6px 8px;
-    margin-top: 4px;
+    margin-top: 6px;
+    max-height: 105px;
+
     span.label {
       font-size: 8.5px;
     }
+
     p.val {
-      font-size: 10px;
-      line-height: 1.28;
+      font-size: 10.5px;
+      line-height: 1.35;
     }
   }
 `;
