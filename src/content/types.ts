@@ -1,0 +1,75 @@
+export type ScreenId =
+  | 'home'
+  | 'about'
+  | 'skills'
+  | 'projects'
+  | 'project-detail'
+  | 'now-playing'
+  | 'contact';
+
+export interface IPPodColorPreset {
+  id: string;
+  name: string;
+  bodyColor: string;
+  backplateColor: string;
+  wheelColor: string;
+  centerButtonColor: string;
+  swatchHex: string;
+}
+
+export interface ProjectItem {
+  id: string;
+  trackNumber: string;
+  category: 'authorial' | 'collaborative';
+  contextLabel: string;
+  title: string;
+  description: string;
+  tags: string[];
+  y2kGradient: string;
+  discCode: string;
+  liveUrl?: string;
+  liveLabel?: string;
+  repoUrl?: string;
+}
+
+export interface SkillHighlightItem {
+  id: string;
+  label: string;
+  subtitle: string;
+  tools: string;
+  description: string;
+  y2kGradient: string;
+  level: number;
+  bars: number[];
+}
+
+export interface TrackItem {
+  id: string;
+  number: string;
+  title: string;
+  artist: string;
+  album: string;
+  duration: number;
+  y2kGradient: string;
+  coverUrl?: string;
+  isLiveNow?: boolean;
+  trackUrl?: string;
+}
+
+export interface ContactLinkItem {
+  id: string;
+  label: string;
+  value: string;
+  url: string;
+  protocol: string;
+  y2kGradient: string;
+}
+
+export interface MainMenuItem {
+  id: Exclude<ScreenId, 'home' | 'project-detail'>;
+  label: string;
+  previewTitle: string;
+  previewSubtitle: string;
+  y2kGradient: string;
+  badge: string;
+}
