@@ -2,18 +2,20 @@ import { Html, RoundedBox } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import {
-  type PointerEvent as ReactPointerEvent,
   useEffect,
   useRef,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
   type WheelEvent,
 } from 'react';
 import {
-  BsFilePlay,
+  BsFillPlayFill,
   BsFillSkipBackwardFill,
   BsFillSkipForwardFill,
+  BsPauseFill,
 } from 'react-icons/bs';
 import { ThemeProvider } from 'styled-components';
-import { Group } from 'three';
+import type { Group } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type { IPPodColorPreset, ScreenId } from '../../content/homeContent';
 import { theme } from '../../styles/theme';
@@ -34,7 +36,7 @@ export interface IPPod3DProps {
   volume: number;
   showVolumeHud: boolean;
   statusFeedback: string | null;
-  controlsRef: React.RefObject<OrbitControlsImpl | null>;
+  controlsRef: RefObject<OrbitControlsImpl | null>;
   onTogglePower: () => void;
   onVolumeUp: () => void;
   onVolumeDown: () => void;
@@ -338,6 +340,7 @@ export function IPPod3D({
             onNext={onNext}
             onSelect={onSelect}
             onMenuBack={onMenuBack}
+            onPlayPause={onPlayPause}
             onHoverIndex={onHoverIndex}
             onNavigateScreen={onNavigateScreen}
             onOpenProjectDetail={onOpenProjectDetail}
@@ -403,7 +406,8 @@ export function IPPod3D({
               $position="bottom"
               onClick={powerStatus === 'on' ? onPlayPause : onTogglePower}
             >
-              <BsFilePlay size={18} />
+              <BsFillPlayFill size={15} />
+              <BsPauseFill size={15} />
             </S.WheelButton>
 
             <S.CenterSelectButton

@@ -1,16 +1,17 @@
 import { ContactShadows, Environment, Float, OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import {
-  type PointerEvent as ReactPointerEvent,
   Suspense,
   useEffect,
   useRef,
   useState,
+  type PointerEvent as ReactPointerEvent,
 } from 'react';
 import {
+  BsFillPlayFill,
   BsFillSkipBackwardFill,
   BsFillSkipForwardFill,
-  BsPauseCircleFill,
+  BsPauseFill,
   BsPower,
 } from 'react-icons/bs';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -97,22 +98,28 @@ export function Home() {
     saveColorPresetId(preset.id);
   };
 
-  const handleTogglePower = () => {
+  const handleTurnOnOnly = () => {
+    if (powerStatus !== 'off') return;
     clearBootTimers();
+    setBootWink(false);
+    setPowerStatus('booting');
+
+    const winkTimer = window.setTimeout(() => {
+      setBootWink(true);
+    }, 550);
+
+    const finishTimer = window.setTimeout(() => {
+      setPowerStatus('on');
+    }, 1300);
+
+    bootTimersRef.current = [winkTimer, finishTimer];
+  };
+
+  const handleTogglePower = () => {
     if (powerStatus === 'off') {
-      setBootWink(false);
-      setPowerStatus('booting');
-
-      const winkTimer = window.setTimeout(() => {
-        setBootWink(true);
-      }, 550);
-
-      const finishTimer = window.setTimeout(() => {
-        setPowerStatus('on');
-      }, 1300);
-
-      bootTimersRef.current = [winkTimer, finishTimer];
+      handleTurnOnOnly();
     } else {
+      clearBootTimers();
       setPowerStatus('off');
       setBootWink(false);
     }
@@ -362,11 +369,12 @@ export function Home() {
             volume={volume}
             showVolumeHud={showVolumeHud}
             statusFeedback={statusFeedback}
-            onTogglePower={handleTogglePower}
+            onTogglePower={handleTurnOnOnly}
             onPrev={handlePrev}
             onNext={handleNext}
             onSelect={handleSelect}
             onMenuBack={handleMenuBack}
+            onPlayPause={handlePlayPause}
             onHoverIndex={setSelectedIndex}
             onNavigateScreen={navigateToScreen}
             onOpenProjectDetail={(idx) => {
@@ -389,7 +397,7 @@ export function Home() {
             <S.MobileWheelBtn
               type="button"
               $position="top"
-              onClick={handlePrev}
+              onClick={powerStatus === 'on' ? handleMenuBack : handleTurnOnOnly}
             >
               MENU
             </S.MobileWheelBtn>
@@ -397,7 +405,7 @@ export function Home() {
             <S.MobileWheelBtn
               type="button"
               $position="left"
-              onClick={handleMenuBack}
+              onClick={powerStatus === 'on' ? handlePrev : handleTurnOnOnly}
             >
               <BsFillSkipBackwardFill size={18} />
             </S.MobileWheelBtn>
@@ -405,7 +413,7 @@ export function Home() {
             <S.MobileWheelBtn
               type="button"
               $position="right"
-              onClick={handleSelect}
+              onClick={powerStatus === 'on' ? handleNext : handleTurnOnOnly}
             >
               <BsFillSkipForwardFill size={18} />
             </S.MobileWheelBtn>
@@ -413,19 +421,26 @@ export function Home() {
             <S.MobileWheelBtn
               type="button"
               $position="bottom"
-              onClick={handleNext}
+              onClick={
+                powerStatus === 'on' ? handlePlayPause : handleTurnOnOnly
+              }
             >
-              <BsPauseCircleFill size={20} />
+              <BsFillPlayFill size={16} />
+              <BsPauseFill size={16} />
             </S.MobileWheelBtn>
 
             <S.MobileCenterSelectBtn
               type="button"
               $centerColor={colorPreset.centerButtonColor}
               $isOn={isDeviceActive}
-              onClick={handleTogglePower}
-              aria-label="Ligar ou desligar iPPod"
+              onClick={
+                powerStatus === 'off' ? handleTurnOnOnly : handleSelect
+              }
+              aria-label={
+                powerStatus === 'off' ? 'Ligar iPPod' : 'Selecionar item'
+              }
             >
-              <BsPower size={24} />
+              {powerStatus === 'off' && <BsPower size={26} />}
             </S.MobileCenterSelectBtn>
           </S.MobileClickWheel>
         </S.MobileWheelSection>

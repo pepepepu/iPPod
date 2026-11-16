@@ -140,7 +140,7 @@ export const StatusBar = styled.header`
   flex-shrink: 0;
 
   @media (max-width: 768px) {
-    height: 30px;
+    height: 28px;
     padding: 0 10px;
     font-size: 12px;
   }
@@ -269,7 +269,7 @@ export const MenuItemRow = styled.li<{ $active: boolean }>`
   }
 
   @media (max-width: 768px) {
-    min-height: 36px;
+    min-height: 35px;
     padding: 4px 10px;
     font-size: 12px;
   }
@@ -304,7 +304,7 @@ export const RightPane = styled.div`
 
   @media (max-width: 768px) {
     justify-content: flex-start;
-    padding: 10px 8px 14px;
+    padding: 8px 8px 12px;
   }
 `;
 
@@ -349,10 +349,10 @@ export const Y2KGradientCover = styled.div<{
   }
 
   @media (max-width: 768px) {
-    width: ${({ $size }) => ($size ? `${Math.min($size, 76)}px` : '82px')};
-    height: ${({ $size }) => ($size ? `${Math.min($size, 76)}px` : '82px')};
+    width: ${({ $size }) => ($size ? `${Math.min($size, 70)}px` : '76px')};
+    height: ${({ $size }) => ($size ? `${Math.min($size, 70)}px` : '76px')};
     padding: 6px;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
 `;
 
@@ -372,8 +372,8 @@ export const AlbumOpticalRing = styled.div`
   z-index: 1;
 
   @media (max-width: 768px) {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     margin-top: 2px;
   }
 `;
@@ -395,8 +395,8 @@ export const ArtworkBadge = styled.span`
   z-index: 1;
 
   @media (max-width: 768px) {
-    font-size: 7px;
-    padding: 2px 5px;
+    font-size: 6.5px;
+    padding: 2px 4px;
   }
 `;
 
@@ -408,7 +408,7 @@ export const PreviewTitle = styled.h2`
   flex-shrink: 0;
 
   @media (max-width: 768px) {
-    font-size: 12.5px;
+    font-size: 12px;
     margin-bottom: 2px;
   }
 `;
@@ -421,8 +421,8 @@ export const PreviewSubtitle = styled.p`
   flex-shrink: 0;
 
   @media (max-width: 768px) {
-    font-size: 10.5px;
-    line-height: 1.3;
+    font-size: 10px;
+    line-height: 1.25;
     max-width: 100%;
     word-break: break-word;
   }
@@ -447,8 +447,8 @@ export const MiniTag = styled.span`
   color: #1f2633;
 
   @media (max-width: 768px) {
-    font-size: 8.5px;
-    padding: 1px 5px;
+    font-size: 8px;
+    padding: 1px 4px;
   }
 `;
 
@@ -480,9 +480,9 @@ export const DetailMiniCover = styled.div<{ $gradient: string }>`
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
 
   @media (max-width: 768px) {
-    width: 46px;
-    height: 46px;
-    font-size: 11px;
+    width: 44px;
+    height: 44px;
+    font-size: 10.5px;
   }
 `;
 
@@ -509,10 +509,10 @@ export const DetailTitleBlock = styled.div`
 
   @media (max-width: 768px) {
     h3 {
-      font-size: 13.5px;
+      font-size: 13px;
     }
     span {
-      font-size: 10px;
+      font-size: 9.5px;
     }
   }
 `;
@@ -532,11 +532,11 @@ export const DetailDescription = styled.p`
   touch-action: pan-y;
 
   @media (max-width: 768px) {
-    font-size: 11px;
-    line-height: 1.35;
+    font-size: 10.5px;
+    line-height: 1.32;
     padding: 6px 8px;
-    margin: 5px 0;
-    max-height: 92px;
+    margin: 4px 0;
+    max-height: 82px;
   }
 `;
 
@@ -554,7 +554,7 @@ export const NowPlayingGrid = styled.div`
   margin-top: 6px;
 
   @media (max-width: 768px) {
-    grid-template-columns: 92px 1fr;
+    grid-template-columns: 86px 1fr;
     gap: 10px;
     margin-top: 2px;
   }
@@ -589,18 +589,18 @@ export const TrackMeta = styled.div`
   }
 
   @media (max-width: 768px) {
-    gap: 3px;
+    gap: 2px;
     span.index {
-      font-size: 10.5px;
+      font-size: 10px;
     }
     h2 {
-      font-size: 15px;
+      font-size: 14.5px;
     }
     p.artist {
-      font-size: 12px;
+      font-size: 11.5px;
     }
     p.album {
-      font-size: 10.5px;
+      font-size: 10px;
     }
   }
 `;
@@ -658,7 +658,7 @@ export const EqualizerBox = styled.div`
   flex-shrink: 0;
 
   @media (max-width: 768px) {
-    height: 52px;
+    height: 48px;
     padding: 5px;
     margin-bottom: 4px;
   }
@@ -734,16 +734,16 @@ export const InfoTextCard = styled.div`
 
   @media (max-width: 768px) {
     padding: 6px 8px;
-    margin-top: 6px;
-    max-height: 105px;
+    margin-top: 5px;
+    max-height: 96px;
 
     span.label {
       font-size: 8.5px;
     }
 
     p.val {
-      font-size: 10.5px;
-      line-height: 1.35;
+      font-size: 10px;
+      line-height: 1.32;
     }
   }
 `;
@@ -791,6 +791,11 @@ export const ScreenFixedFooter = styled.footer`
   padding: 0 10px;
   z-index: 4;
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    height: 28px;
+    padding: 0 6px;
+  }
 `;
 
 export const FooterControlBtn = styled.button`
@@ -809,6 +814,12 @@ export const FooterControlBtn = styled.button`
     background: rgba(19, 98, 214, 0.14);
     color: #1362d6;
   }
+
+  @media (max-width: 768px) {
+    gap: 3px;
+    padding: 2px 3px;
+    font-size: 9px;
+  }
 `;
 
 export const FooterKeyBadge = styled.kbd`
@@ -821,4 +832,9 @@ export const FooterKeyBadge = styled.kbd`
   font-weight: 700;
   color: #14181f;
   box-shadow: 0 1px 0 #7c889b;
+
+  @media (max-width: 768px) {
+    font-size: 7.5px;
+    padding: 1px 3px;
+  }
 `;

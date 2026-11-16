@@ -33,6 +33,7 @@ export interface IPPodScreensProps {
   onNext: () => void;
   onSelect: () => void;
   onMenuBack: () => void;
+  onPlayPause: () => void;
   onHoverIndex: (index: number) => void;
   onNavigateScreen: (screen: ScreenId, index?: number) => void;
   onOpenProjectDetail: (projectIdx: number) => void;
@@ -57,6 +58,7 @@ export function IPPodScreens({
   onNext,
   onSelect,
   onMenuBack,
+  onPlayPause,
   onHoverIndex,
   onNavigateScreen,
   onOpenProjectDetail,
@@ -181,8 +183,7 @@ export function IPPodScreens({
 
           <S.RightPane>
             <S.Y2KGradientCover
-              $gradient={homeContent.about.y2kGradient}
-              $size={94}
+              $gradient={homeContent.about.y2kGradient} $size={94}
             >
               <S.AlbumOpticalRing />
               <S.ArtworkBadge>{activeBioTrack.tag}</S.ArtworkBadge>
@@ -344,8 +345,7 @@ export function IPPodScreens({
         <S.FullScreenBody>
           <S.NowPlayingGrid>
             <S.Y2KGradientCover
-              $gradient={currentTrack.y2kGradient}
-              $size={145}
+              $gradient={currentTrack.y2kGradient} $size={145}
             >
               <S.AlbumOpticalRing />
               <S.ArtworkBadge>128 KBPS</S.ArtworkBadge>
@@ -436,7 +436,34 @@ export function IPPodScreens({
         </S.VolumeHudOverlay>
       )}
 
-      {!isMobile && (
+      {isMobile ? (
+        <S.ScreenFixedFooter>
+          <S.FooterControlBtn type="button" onClick={onMenuBack}>
+            <S.FooterKeyBadge>MENU</S.FooterKeyBadge>
+            <span>Voltar</span>
+          </S.FooterControlBtn>
+
+          <S.FooterControlBtn type="button" onClick={onPrev}>
+            <S.FooterKeyBadge>|&lt;&lt;</S.FooterKeyBadge>
+            <span>Cima</span>
+          </S.FooterControlBtn>
+
+          <S.FooterControlBtn type="button" onClick={onNext}>
+            <S.FooterKeyBadge>&gt;&gt;|</S.FooterKeyBadge>
+            <span>Baixo</span>
+          </S.FooterControlBtn>
+
+          <S.FooterControlBtn type="button" onClick={onPlayPause}>
+            <S.FooterKeyBadge>▶||</S.FooterKeyBadge>
+            <span>Play</span>
+          </S.FooterControlBtn>
+
+          <S.FooterControlBtn type="button" onClick={onSelect}>
+            <S.FooterKeyBadge>●</S.FooterKeyBadge>
+            <span>Abrir</span>
+          </S.FooterControlBtn>
+        </S.ScreenFixedFooter>
+      ) : (
         <S.ScreenFixedFooter>
           <S.FooterControlBtn type="button" onClick={onMenuBack}>
             <S.FooterKeyBadge>←</S.FooterKeyBadge>
