@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   BsFillPlayFill,
   BsPauseFill,
@@ -69,6 +69,19 @@ export function ScreenArea({
   onExecuteProjectAction,
 }: ScreenAreaProps & { currentTrack: TrackItem }) {
   const listContainerRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (!listContainerRef.current) return;
+    const activeEl = listContainerRef.current.children[
+      selectedIndex
+    ] as HTMLElement | undefined;
+    if (activeEl) {
+      activeEl.scrollIntoView({
+        block: 'nearest',
+        behavior: 'smooth',
+      });
+    }
+  }, [selectedIndex, currentScreen]);
 
   const getHeaderTitle = () => {
     switch (currentScreen) {
@@ -207,22 +220,18 @@ export function ScreenArea({
             <S.FooterKeyBadge>MENU</S.FooterKeyBadge>
             <span>Voltar</span>
           </S.FooterControlBtn>
-
           <S.FooterControlBtn type="button" onClick={onPrev}>
             <S.FooterKeyBadge>|&lt;&lt;</S.FooterKeyBadge>
             <span>Cima</span>
           </S.FooterControlBtn>
-
           <S.FooterControlBtn type="button" onClick={onNext}>
             <S.FooterKeyBadge>&gt;&gt;|</S.FooterKeyBadge>
             <span>Baixo</span>
           </S.FooterControlBtn>
-
           <S.FooterControlBtn type="button" onClick={onPlayPause}>
             <S.FooterKeyBadge>▶||</S.FooterKeyBadge>
             <span>Play</span>
           </S.FooterControlBtn>
-
           <S.FooterControlBtn type="button" onClick={onSelect}>
             <S.FooterKeyBadge>●</S.FooterKeyBadge>
             <span>Abrir</span>
@@ -234,22 +243,18 @@ export function ScreenArea({
             <S.FooterKeyBadge>←</S.FooterKeyBadge>
             <span>Voltar</span>
           </S.FooterControlBtn>
-
           <S.FooterControlBtn type="button" onClick={onSelect}>
-            <S.FooterKeyBadge>→ / Enter</S.FooterKeyBadge>
+            <S.FooterKeyBadge>→</S.FooterKeyBadge>
             <span>Selecionar</span>
           </S.FooterControlBtn>
-
           <S.FooterControlBtn type="button" onClick={onPrev}>
             <S.FooterKeyBadge>↑</S.FooterKeyBadge>
             <span>Cima</span>
           </S.FooterControlBtn>
-
           <S.FooterControlBtn type="button" onClick={onNext}>
             <S.FooterKeyBadge>↓</S.FooterKeyBadge>
             <span>Baixo</span>
           </S.FooterControlBtn>
-
           <S.FooterControlBtn type="button" onClick={onTogglePower}>
             <S.FooterKeyBadge>P</S.FooterKeyBadge>
             <span>Desligar</span>
