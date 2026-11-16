@@ -17,7 +17,11 @@ import {
 import { ThemeProvider } from 'styled-components';
 import type { Group } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import type { IPPodColorPreset, ScreenId } from '../../content/homeContent';
+import type {
+  IPPodColorPreset,
+  ScreenId,
+  TrackItem,
+} from '../../content/homeContent';
 import { theme } from '../../styles/theme';
 import { IPPodScreens, type PowerStatus } from '../iPPodScreens';
 import * as S from './styles';
@@ -25,12 +29,11 @@ import * as S from './styles';
 export interface IPPod3DProps {
   isMobile: boolean;
   powerStatus: PowerStatus;
-  bootWink: boolean;
   colorPreset: IPPodColorPreset;
   currentScreen: ScreenId;
   selectedIndex: number;
   activeProjectIndex: number;
-  trackIndex: number;
+  currentTrack: TrackItem;
   isPlaying: boolean;
   elapsedSeconds: number;
   volume: number;
@@ -54,12 +57,11 @@ export interface IPPod3DProps {
 export function IPPod3D({
   isMobile,
   powerStatus,
-  bootWink,
   colorPreset,
   currentScreen,
   selectedIndex,
   activeProjectIndex,
-  trackIndex,
+  currentTrack,
   isPlaying,
   elapsedSeconds,
   volume,
@@ -325,11 +327,10 @@ export function IPPod3D({
           <IPPodScreens
             isMobile={isMobile}
             powerStatus={powerStatus}
-            bootWink={bootWink}
             currentScreen={currentScreen}
             selectedIndex={selectedIndex}
             activeProjectIndex={activeProjectIndex}
-            trackIndex={trackIndex}
+            currentTrack={currentTrack}
             isPlaying={isPlaying}
             elapsedSeconds={elapsedSeconds}
             volume={volume}

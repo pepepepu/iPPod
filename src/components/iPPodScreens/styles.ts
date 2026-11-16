@@ -4,11 +4,11 @@ import { theme } from '../../styles/theme';
 const bootPopIn = keyframes`
   0% {
     opacity: 0;
-    transform: scale(0.75);
+    transform: rotate(90deg) scale(0.85);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: rotate(90deg) scale(1);
   }
 `;
 
@@ -18,6 +18,17 @@ const bootProgressAnim = keyframes`
   }
   100% {
     width: 100%;
+  }
+`;
+
+const livePulse = keyframes`
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
   }
 `;
 
@@ -72,7 +83,7 @@ export const ScreenWrapper = styled.div<{ $isMobile?: boolean }>`
 export const BlankOffScreen = styled.div`
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 50% 40%, #101318 0%, #05070a 100%);
+  background: #000000;
   z-index: 2;
   cursor: pointer;
 `;
@@ -80,29 +91,27 @@ export const BlankOffScreen = styled.div`
 export const BootScreen = styled.div`
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 50% 45%, #161d28 0%, #090c12 100%);
+  background: #000000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 28px;
   z-index: 2;
 `;
 
-export const BootTagEmoticon = styled.div<{ $winking: boolean }>`
+export const BootTagEmoticon = styled.div`
   font-family: ${theme.fonts.display};
-  font-size: 64px;
+  font-size: 62px;
   font-weight: 900;
-  letter-spacing: 4px;
-  color: ${({ $winking }) => ($winking ? '#00f0ff' : '#ffffff')};
-  text-shadow: ${({ $winking }) =>
-    $winking
-      ? '0 0 22px rgba(0, 240, 255, 0.75)'
-      : '0 0 14px rgba(255, 255, 255, 0.35)'};
-  animation: ${bootPopIn} 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition: transform 0.15s ease, color 0.15s ease;
-  transform: ${({ $winking }) =>
-    $winking ? 'scale(1.08) rotate(-4deg)' : 'scale(1)'};
+  letter-spacing: 2px;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transform: rotate(90deg);
+  animation: ${bootPopIn} 0.35s ease-out forwards;
 
   @media (max-width: 768px) {
     font-size: 48px;
@@ -110,18 +119,18 @@ export const BootTagEmoticon = styled.div<{ $winking: boolean }>`
 `;
 
 export const BootLoadingTrack = styled.div`
-  width: 140px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.12);
+  width: 150px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.18);
   border-radius: 999px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 export const BootLoadingFill = styled.div`
   height: 100%;
-  background: linear-gradient(90deg, #1362d6 0%, #00f0ff 100%);
-  animation: ${bootProgressAnim} 1.25s ease-out forwards;
+  background: #ffffff;
+  border-radius: 999px;
+  animation: ${bootProgressAnim} 1.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 `;
 
 export const StatusBar = styled.header`
@@ -303,9 +312,17 @@ export const RightPane = styled.div`
   }
 
   @media (max-width: 768px) {
-    justify-content: flex-start;
-    padding: 8px 8px 12px;
+    padding: 10px 8px;
   }
+`;
+
+export const RightPaneInner = styled.div`
+  width: 100%;
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const Y2KGradientCover = styled.div<{
@@ -346,6 +363,7 @@ export const Y2KGradientCover = styled.div<{
     );
     transform: rotate(-18deg);
     pointer-events: none;
+    z-index: 1;
   }
 
   @media (max-width: 768px) {
@@ -354,6 +372,15 @@ export const Y2KGradientCover = styled.div<{
     padding: 6px;
     margin-bottom: 5px;
   }
+`;
+
+export const AlbumCoverImage = styled.img`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 `;
 
 export const AlbumOpticalRing = styled.div`
@@ -369,7 +396,7 @@ export const AlbumOpticalRing = styled.div`
   );
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
   margin-top: 8px;
-  z-index: 1;
+  z-index: 2;
 
   @media (max-width: 768px) {
     width: 22px;
@@ -392,7 +419,8 @@ export const ArtworkBadge = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  z-index: 1;
+  z-index: 2;
+  margin-top: auto;
 
   @media (max-width: 768px) {
     font-size: 6.5px;
@@ -564,37 +592,38 @@ export const TrackMeta = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
-
-  span.index {
-    font-size: 12px;
-    font-weight: 700;
-    color: #5a6578;
-  }
+  min-width: 0;
 
   h2 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
     color: #14181f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   p.artist {
     font-size: 14px;
     font-weight: 600;
     color: #1362d6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   p.album {
     font-size: 12px;
     color: #5a6578;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   @media (max-width: 768px) {
     gap: 2px;
-    span.index {
-      font-size: 10px;
-    }
     h2 {
-      font-size: 14.5px;
+      font-size: 14px;
     }
     p.artist {
       font-size: 11.5px;
@@ -603,6 +632,41 @@ export const TrackMeta = styled.div`
       font-size: 10px;
     }
   }
+`;
+
+export const LiveStatusPill = styled.div<{ $isLive: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: ${theme.fonts.display};
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  width: fit-content;
+  max-width: 100%;
+  background: ${({ $isLive }) =>
+    $isLive ? 'rgba(22, 163, 74, 0.14)' : 'rgba(90, 101, 120, 0.14)'};
+  color: ${({ $isLive }) => ($isLive ? '#15803d' : '#475569')};
+  border: 1px solid
+    ${({ $isLive }) =>
+    $isLive ? 'rgba(22, 163, 74, 0.4)' : 'rgba(90, 101, 120, 0.3)'};
+
+  @media (max-width: 768px) {
+    font-size: 7.5px;
+    padding: 2px 6px;
+  }
+`;
+
+export const LivePulseDot = styled.span<{ $isLive: boolean }>`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: ${({ $isLive }) => ($isLive ? '#22c55e' : '#64748b')};
+  animation: ${({ $isLive }) => ($isLive ? livePulse : 'none')} 1.4s ease-in-out
+    infinite;
 `;
 
 export const ScrubberContainer = styled.div`

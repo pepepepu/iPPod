@@ -10,6 +10,7 @@ import {
   getProjectDetailActions,
   homeContent,
   type ScreenId,
+  type TrackItem,
 } from '../../content/homeContent';
 import * as S from './styles';
 
@@ -18,11 +19,10 @@ export type PowerStatus = 'off' | 'booting' | 'on';
 export interface IPPodScreensProps {
   isMobile: boolean;
   powerStatus: PowerStatus;
-  bootWink: boolean;
   currentScreen: ScreenId;
   selectedIndex: number;
   activeProjectIndex: number;
-  trackIndex: number;
+  currentTrack: TrackItem;
   isPlaying: boolean;
   elapsedSeconds: number;
   volume: number;
@@ -43,11 +43,10 @@ export interface IPPodScreensProps {
 export function IPPodScreens({
   isMobile,
   powerStatus,
-  bootWink,
   currentScreen,
   selectedIndex,
   activeProjectIndex,
-  trackIndex,
+  currentTrack,
   isPlaying,
   elapsedSeconds,
   volume,
@@ -65,7 +64,6 @@ export function IPPodScreens({
   onExecuteProjectAction,
 }: IPPodScreensProps) {
   const listContainerRef = useRef<HTMLUListElement>(null);
-  const currentTrack = homeContent.tracks[trackIndex] || homeContent.tracks[0];
 
   useEffect(() => {
     if (!listContainerRef.current) return;
@@ -114,9 +112,7 @@ export function IPPodScreens({
     return (
       <S.ScreenWrapper $isMobile={isMobile}>
         <S.BootScreen>
-          <S.BootTagEmoticon $winking={bootWink}>
-            {bootWink ? ';P' : ':P'}
-          </S.BootTagEmoticon>
+          <S.BootTagEmoticon>:P</S.BootTagEmoticon>
           <S.BootLoadingTrack>
             <S.BootLoadingFill />
           </S.BootLoadingTrack>
@@ -148,12 +144,14 @@ export function IPPodScreens({
           </S.LeftPane>
 
           <S.RightPane>
-            <S.Y2KGradientCover $gradient={activeMenu.y2kGradient}>
-              <S.AlbumOpticalRing />
-              <S.ArtworkBadge>{activeMenu.badge}</S.ArtworkBadge>
-            </S.Y2KGradientCover>
-            <S.PreviewTitle>{activeMenu.previewTitle}</S.PreviewTitle>
-            <S.PreviewSubtitle>{activeMenu.previewSubtitle}</S.PreviewSubtitle>
+            <S.RightPaneInner>
+              <S.Y2KGradientCover $gradient={activeMenu.y2kGradient}>
+                <S.AlbumOpticalRing />
+                <S.ArtworkBadge>{activeMenu.badge}</S.ArtworkBadge>
+              </S.Y2KGradientCover>
+              <S.PreviewTitle>{activeMenu.previewTitle}</S.PreviewTitle>
+              <S.PreviewSubtitle>{activeMenu.previewSubtitle}</S.PreviewSubtitle>
+            </S.RightPaneInner>
           </S.RightPane>
         </S.SplitBody>
       );
@@ -182,18 +180,21 @@ export function IPPodScreens({
           </S.LeftPane>
 
           <S.RightPane>
-            <S.Y2KGradientCover
-              $gradient={homeContent.about.y2kGradient} $size={94}
-            >
-              <S.AlbumOpticalRing />
-              <S.ArtworkBadge>{activeBioTrack.tag}</S.ArtworkBadge>
-            </S.Y2KGradientCover>
-            <S.PreviewTitle>{homeContent.about.title}</S.PreviewTitle>
-            <S.PreviewSubtitle>{homeContent.about.subtitle}</S.PreviewSubtitle>
-            <S.InfoTextCard>
-              <span className="label">{activeBioTrack.label}</span>
-              <p className="val">{activeBioTrack.content}</p>
-            </S.InfoTextCard>
+            <S.RightPaneInner>
+              <S.Y2KGradientCover
+                $gradient={homeContent.about.y2kGradient}
+                $size={94}
+              >
+                <S.AlbumOpticalRing />
+                <S.ArtworkBadge>{activeBioTrack.tag}</S.ArtworkBadge>
+              </S.Y2KGradientCover>
+              <S.PreviewTitle>{homeContent.about.title}</S.PreviewTitle>
+              <S.PreviewSubtitle>{homeContent.about.subtitle}</S.PreviewSubtitle>
+              <S.InfoTextCard>
+                <span className="label">{activeBioTrack.label}</span>
+                <p className="val">{activeBioTrack.content}</p>
+              </S.InfoTextCard>
+            </S.RightPaneInner>
           </S.RightPane>
         </S.SplitBody>
       );
@@ -223,19 +224,21 @@ export function IPPodScreens({
           </S.LeftPane>
 
           <S.RightPane>
-            <S.EqualizerBox>
-              {activeTopic.bars.map((barValue, idx) => (
-                <S.EqBarColumn key={`${activeTopic.id}-${idx}`}>
-                  <S.EqBarFill $height={barValue} />
-                </S.EqBarColumn>
-              ))}
-            </S.EqualizerBox>
-            <S.PreviewTitle>{activeTopic.label}</S.PreviewTitle>
-            <S.PreviewSubtitle>{activeTopic.tools}</S.PreviewSubtitle>
-            <S.InfoTextCard>
-              <span className="label">{activeTopic.subtitle}</span>
-              <p className="val">{activeTopic.description}</p>
-            </S.InfoTextCard>
+            <S.RightPaneInner>
+              <S.EqualizerBox>
+                {activeTopic.bars.map((barValue, idx) => (
+                  <S.EqBarColumn key={`${activeTopic.id}-${idx}`}>
+                    <S.EqBarFill $height={barValue} />
+                  </S.EqBarColumn>
+                ))}
+              </S.EqualizerBox>
+              <S.PreviewTitle>{activeTopic.label}</S.PreviewTitle>
+              <S.PreviewSubtitle>{activeTopic.tools}</S.PreviewSubtitle>
+              <S.InfoTextCard>
+                <span className="label">{activeTopic.subtitle}</span>
+                <p className="val">{activeTopic.description}</p>
+              </S.InfoTextCard>
+            </S.RightPaneInner>
           </S.RightPane>
         </S.SplitBody>
       );
@@ -265,17 +268,19 @@ export function IPPodScreens({
           </S.LeftPane>
 
           <S.RightPane>
-            <S.Y2KGradientCover $gradient={activeProj.y2kGradient}>
-              <S.AlbumOpticalRing />
-              <S.ArtworkBadge>{activeProj.discCode}</S.ArtworkBadge>
-            </S.Y2KGradientCover>
-            <S.PreviewTitle>{activeProj.title}</S.PreviewTitle>
-            <S.PreviewSubtitle>{activeProj.contextLabel}</S.PreviewSubtitle>
-            <S.TagRow>
-              {activeProj.tags.slice(0, 4).map((tech) => (
-                <S.MiniTag key={tech}>{tech}</S.MiniTag>
-              ))}
-            </S.TagRow>
+            <S.RightPaneInner>
+              <S.Y2KGradientCover $gradient={activeProj.y2kGradient}>
+                <S.AlbumOpticalRing />
+                <S.ArtworkBadge>{activeProj.discCode}</S.ArtworkBadge>
+              </S.Y2KGradientCover>
+              <S.PreviewTitle>{activeProj.title}</S.PreviewTitle>
+              <S.PreviewSubtitle>{activeProj.contextLabel}</S.PreviewSubtitle>
+              <S.TagRow>
+                {activeProj.tags.slice(0, 4).map((tech) => (
+                  <S.MiniTag key={tech}>{tech}</S.MiniTag>
+                ))}
+              </S.TagRow>
+            </S.RightPaneInner>
           </S.RightPane>
         </S.SplitBody>
       );
@@ -345,14 +350,35 @@ export function IPPodScreens({
         <S.FullScreenBody>
           <S.NowPlayingGrid>
             <S.Y2KGradientCover
-              $gradient={currentTrack.y2kGradient} $size={145}
+              $gradient={currentTrack.y2kGradient}
+              $size={145}
+              onClick={() => {
+                if (currentTrack.trackUrl) {
+                  window.open(
+                    currentTrack.trackUrl,
+                    '_blank',
+                    'noopener,noreferrer'
+                  );
+                }
+              }}
+              style={{ cursor: currentTrack.trackUrl ? 'pointer' : 'default' }}
             >
-              <S.AlbumOpticalRing />
-              <S.ArtworkBadge>128 KBPS</S.ArtworkBadge>
+              {currentTrack.coverUrl ? (
+                <S.AlbumCoverImage
+                  src={currentTrack.coverUrl}
+                  alt={currentTrack.title}
+                />
+              ) : (
+                <S.AlbumOpticalRing />
+              )}
+              <S.ArtworkBadge>LIVE • SPOTIFY</S.ArtworkBadge>
             </S.Y2KGradientCover>
 
             <S.TrackMeta>
-              <span className="index">{currentTrack.number}</span>
+              <S.LiveStatusPill $isLive>
+                <S.LivePulseDot $isLive />
+                <span>OUVINDO AGORA • {currentTrack.number}</span>
+              </S.LiveStatusPill>
               <h2>{currentTrack.title}</h2>
               <p className="artist">{currentTrack.artist}</p>
               <p className="album">{currentTrack.album}</p>
@@ -396,16 +422,18 @@ export function IPPodScreens({
         </S.LeftPane>
 
         <S.RightPane>
-          <S.Y2KGradientCover $gradient={activeContact.y2kGradient} $size={96}>
-            <S.AlbumOpticalRing />
-            <S.ArtworkBadge>{activeContact.protocol}</S.ArtworkBadge>
-          </S.Y2KGradientCover>
-          <S.PreviewTitle>{activeContact.label}</S.PreviewTitle>
-          <S.PreviewSubtitle>{activeContact.value}</S.PreviewSubtitle>
-          <S.InfoTextCard>
-            <span className="label">{homeContent.contact.subtitle}</span>
-            <p className="val">{homeContent.contact.message}</p>
-          </S.InfoTextCard>
+          <S.RightPaneInner>
+            <S.Y2KGradientCover $gradient={activeContact.y2kGradient} $size={96}>
+              <S.AlbumOpticalRing />
+              <S.ArtworkBadge>{activeContact.protocol}</S.ArtworkBadge>
+            </S.Y2KGradientCover>
+            <S.PreviewTitle>{activeContact.label}</S.PreviewTitle>
+            <S.PreviewSubtitle>{activeContact.value}</S.PreviewSubtitle>
+            <S.InfoTextCard>
+              <span className="label">{homeContent.contact.subtitle}</span>
+              <p className="val">{homeContent.contact.message}</p>
+            </S.InfoTextCard>
+          </S.RightPaneInner>
         </S.RightPane>
       </S.SplitBody>
     );

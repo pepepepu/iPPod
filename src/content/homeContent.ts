@@ -51,6 +51,9 @@ export interface TrackItem {
   album: string;
   duration: number;
   y2kGradient: string;
+  coverUrl?: string;
+  isLiveNow?: boolean;
+  trackUrl?: string;
 }
 
 export interface ContactLinkItem {
@@ -161,11 +164,11 @@ export const homeContent = {
     {
       id: 'now-playing',
       label: 'Tocando Agora',
-      previewTitle: 'Y2K Stereo Deck',
-      previewSubtitle: '128 kbps MP3 • Som Cristalino & Bass Boost',
+      previewTitle: 'Spotify // Last.fm Sync',
+      previewSubtitle: 'O que está tocando nos meus fones em tempo real',
       y2kGradient:
         'linear-gradient(135deg, #ff6b00 0%, #ff0055 55%, #1a002c 100%)',
-      badge: 'HI-FI MP3',
+      badge: 'LIVE SYNC',
     },
     {
       id: 'contact',

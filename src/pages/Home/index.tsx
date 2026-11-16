@@ -22,39 +22,42 @@ import {
   homeContent,
   type IPPodColorPreset,
   type ScreenId,
+  type TrackItem,
 } from '../../content/homeContent';
 import {
   getSavedColorPreset,
   saveColorPresetId,
 } from '../../utils/colorStorage';
+import { fetchLastFmCurrentTrack } from '../../utils/lastFMServices';
 import * as S from './styles';
 
 export function Home() {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const mobileWheelRef = useRef<HTMLDivElement>(null);
   const lastMobileAngleRef = useRef<number | null>(null);
-  const bootTimersRef = useRef<number[]>([]);
+  const bootTimerRef = useRef<number | null>(null);
   const volumeTimerRef = useRef<number | null>(null);
 
   const [isMobile, setIsMobile] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth <= 768 : false
   );
   const [powerStatus, setPowerStatus] = useState<PowerStatus>('off');
-  const [bootWink, setBootWink] = useState(false);
   const [colorPreset, setColorPreset] = useState<IPPodColorPreset>(() =>
     getSavedColorPreset()
   );
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('home');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
-  const [trackIndex, setTrackIndex] = useState(0);
+  const [currentTrack, setCurrentTrack] = useState<TrackItem>(() => ({
+    ...homeContent.tracks[0],
+    number: 'Faixa 01 de 01',
+    isLiveNow: true,
+  }));
   const [isPlaying, setIsPlaying] = useState(true);
   const [elapsedSeconds, setElapsedSeconds] = useState(48);
   const [volume, setVolume] = useState(70);
   const [showVolumeHud, setShowVolumeHud] = useState(false);
   const [statusFeedback, setStatusFeedback] = useState<string | null>(null);
-
-  const currentTrack = homeContent.tracks[trackIndex] || homeContent.tracks[0];
 
   useEffect(() => {
     const handleResize = () => {
@@ -64,9 +67,37 @@ export function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const clearBootTimers = () => {
-    bootTimersRef.current.forEach((id) => window.clearTimeout(id));
-    bootTimersRef.current = [];
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadLatestTrack = async () => {
+      const latest = await fetchLastFmCurrentTrack();
+      if (isMounted) {
+        setCurrentTrack((prev) => {
+          if (prev.title !== latest.title || prev.artist !== latest.artist) {
+            setElapsedSeconds(12);
+          }
+          return latest;
+        });
+      }
+    };
+
+    void loadLatestTrack();
+    const pollingInterval = window.setInterval(() => {
+      void loadLatestTrack();
+    }, 20000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(pollingInterval);
+    };
+  }, []);
+
+  const clearBootTimer = () => {
+    if (bootTimerRef.current !== null) {
+      window.clearTimeout(bootTimerRef.current);
+      bootTimerRef.current = null;
+    }
   };
 
   const getListLength = (screen: ScreenId): number => {
@@ -85,7 +116,7 @@ export function Home() {
         return getProjectDetailActions(proj).length;
       }
       case 'now-playing':
-        return homeContent.tracks.length;
+        return 1;
       case 'contact':
         return homeContent.contact.links.length;
       default:
@@ -100,28 +131,20 @@ export function Home() {
 
   const handleTurnOnOnly = () => {
     if (powerStatus !== 'off') return;
-    clearBootTimers();
-    setBootWink(false);
+    clearBootTimer();
     setPowerStatus('booting');
 
-    const winkTimer = window.setTimeout(() => {
-      setBootWink(true);
-    }, 550);
-
-    const finishTimer = window.setTimeout(() => {
+    bootTimerRef.current = window.setTimeout(() => {
       setPowerStatus('on');
-    }, 1300);
-
-    bootTimersRef.current = [winkTimer, finishTimer];
+    }, 1350);
   };
 
   const handleTogglePower = () => {
     if (powerStatus === 'off') {
       handleTurnOnOnly();
     } else {
-      clearBootTimers();
+      clearBootTimer();
       setPowerStatus('off');
-      setBootWink(false);
     }
   };
 
@@ -172,8 +195,9 @@ export function Home() {
   const handleNext = () => {
     if (powerStatus !== 'on') return;
     if (currentScreen === 'now-playing') {
-      setTrackIndex((prev) => (prev + 1) % homeContent.tracks.length);
-      setElapsedSeconds(0);
+      setElapsedSeconds((prev) =>
+        Math.min(currentTrack.duration - 1, prev + 15)
+      );
       return;
     }
     const len = getListLength(currentScreen);
@@ -183,11 +207,7 @@ export function Home() {
   const handlePrev = () => {
     if (powerStatus !== 'on') return;
     if (currentScreen === 'now-playing') {
-      setTrackIndex(
-        (prev) =>
-          (prev - 1 + homeContent.tracks.length) % homeContent.tracks.length
-      );
-      setElapsedSeconds(0);
+      setElapsedSeconds((prev) => Math.max(0, prev - 15));
       return;
     }
     const len = getListLength(currentScreen);
@@ -215,7 +235,11 @@ export function Home() {
     }
 
     if (currentScreen === 'now-playing') {
-      setIsPlaying((prev) => !prev);
+      if (currentTrack.trackUrl) {
+        window.open(currentTrack.trackUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        setIsPlaying((prev) => !prev);
+      }
       return;
     }
 
@@ -290,7 +314,7 @@ export function Home() {
 
   useEffect(() => {
     return () => {
-      clearBootTimers();
+      clearBootTimer();
       if (volumeTimerRef.current) {
         window.clearTimeout(volumeTimerRef.current);
       }
@@ -302,7 +326,6 @@ export function Home() {
     const timer = window.setInterval(() => {
       setElapsedSeconds((prev) => {
         if (prev + 1 >= currentTrack.duration) {
-          setTrackIndex((t) => (t + 1) % homeContent.tracks.length);
           return 0;
         }
         return prev + 1;
@@ -359,11 +382,10 @@ export function Home() {
           <IPPodScreens
             isMobile
             powerStatus={powerStatus}
-            bootWink={bootWink}
             currentScreen={currentScreen}
             selectedIndex={selectedIndex}
             activeProjectIndex={activeProjectIndex}
-            trackIndex={trackIndex}
+            currentTrack={currentTrack}
             isPlaying={isPlaying}
             elapsedSeconds={elapsedSeconds}
             volume={volume}
@@ -479,12 +501,11 @@ export function Home() {
               <IPPod3D
                 isMobile={false}
                 powerStatus={powerStatus}
-                bootWink={bootWink}
                 colorPreset={colorPreset}
                 currentScreen={currentScreen}
                 selectedIndex={selectedIndex}
                 activeProjectIndex={activeProjectIndex}
-                trackIndex={trackIndex}
+                currentTrack={currentTrack}
                 isPlaying={isPlaying}
                 elapsedSeconds={elapsedSeconds}
                 volume={volume}
