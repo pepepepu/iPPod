@@ -1,0 +1,169 @@
+import {
+  useEffect,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
+import {
+  homeContent,
+  type PendingStickerDrop,
+  type PlacedSticker,
+} from '../../content/homeContent';
+import { getStickerDataUrl } from '../../utils/stickerCanvas';
+import * as S from './styles';
+
+export interface StickerAlbumProps {
+  placedStickers: PlacedSticker[];
+  onDropSticker: (drop: PendingStickerDrop) => void;
+}
+
+export function StickerAlbum({
+  placedStickers,
+  onDropSticker,
+}: StickerAlbumProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [draggingSticker, setDraggingSticker] = useState<{
+    id: string;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!draggingSticker) return;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      setDraggingSticker((prev) =>
+        prev ? { ...prev, x: e.clientX, y: e.clientY } : null
+      );
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      onDropSticker({
+        stickerId: draggingSticker.id,
+        clientX: e.clientX,
+        clientY: e.clientY,
+      });
+      setDraggingSticker(null);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [draggingSticker, onDropSticker]);
+
+  const handleStartPeel = (
+    stickerId: string,
+    isUsed: boolean,
+    e: ReactPointerEvent<HTMLButtonElement>
+  ) => {
+    if (isUsed) return;
+    e.preventDefault();
+    setDraggingSticker({
+      id: stickerId,
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
+
+  return (
+    <>
+      <S.StickerPackDock $isOpen={isOpen}>
+        <S.PackHeaderTopper
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+        >
+          <S.HeaderMainArea>
+            <S.OutlinedWatermark>STICKERS</S.OutlinedWatermark>
+            <S.HangerPunchHole />
+            <S.BarcodeColumn>
+              <S.BarcodeWhiteBox>
+                <svg viewBox="0 0 60 22" fill="none">
+                  <rect x="2" y="1" width="1.5" height="20" fill="#000" />
+                  <rect x="5" y="1" width="1" height="20" fill="#000" />
+                  <rect x="8" y="1" width="2.5" height="18" fill="#000" />
+                  <rect x="12" y="1" width="1" height="18" fill="#000" />
+                  <rect x="15" y="1" width="2" height="18" fill="#000" />
+                  <rect x="19" y="1" width="1" height="18" fill="#000" />
+                  <rect x="22" y="1" width="3" height="18" fill="#000" />
+                  <rect x="27" y="1" width="1" height="20" fill="#000" />
+                  <rect x="30" y="1" width="1" height="20" fill="#000" />
+                  <rect x="33" y="1" width="2.5" height="18" fill="#000" />
+                  <rect x="37" y="1" width="1" height="18" fill="#000" />
+                  <rect x="40" y="1" width="2" height="18" fill="#000" />
+                  <rect x="44" y="1" width="3" height="18" fill="#000" />
+                  <rect x="49" y="1" width="1" height="18" fill="#000" />
+                  <rect x="52" y="1" width="2" height="18" fill="#000" />
+                  <rect x="55" y="1" width="1" height="20" fill="#000" />
+                  <rect x="57.5" y="1" width="1.5" height="20" fill="#000" />
+                </svg>
+                <span>0 51000 01251 7</span>
+              </S.BarcodeWhiteBox>
+              <S.CartelaRedText>CARTELA 23X28CM</S.CartelaRedText>
+            </S.BarcodeColumn>
+          </S.HeaderMainArea>
+
+          <S.RainbowColorStrip>
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </S.RainbowColorStrip>
+        </S.PackHeaderTopper>
+
+        <S.StickerSheetBody>
+          {homeContent.stickers.map((sticker) => {
+            const alreadyPlaced = placedStickers.some(
+              (item) => item.stickerId === sticker.id
+            );
+            const isBeingDragged = draggingSticker?.id === sticker.id;
+            const isUsed = alreadyPlaced || isBeingDragged;
+
+            return (
+              <S.StickerSlot
+                key={sticker.id}
+                type="button"
+                $isUsed={isUsed}
+                onPointerDown={(e) =>
+                  handleStartPeel(sticker.id, isUsed, e)
+                }
+              >
+                <S.VinylStickerImg
+                  src={getStickerDataUrl(sticker.id)}
+                  alt={sticker.name}
+                  $isUsed={isUsed}
+                  draggable={false}
+                />
+              </S.StickerSlot>
+            );
+          })}
+        </S.StickerSheetBody>
+      </S.StickerPackDock>
+
+      {draggingSticker && (
+        <S.DraggingStickerGhost
+          style={{
+            left: `${draggingSticker.x}px`,
+            top: `${draggingSticker.y}px`,
+          }}
+        >
+          <img
+            src={getStickerDataUrl(draggingSticker.id)}
+            alt="Sticker"
+            draggable={false}
+          />
+        </S.DraggingStickerGhost>
+      )}
+    </>
+  );
+}

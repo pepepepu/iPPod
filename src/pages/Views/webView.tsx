@@ -3,9 +3,12 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { ColorPicker } from '../../components/ColorPicker';
 import type { PowerStatus } from '../../components/ScreenArea';
 import { StatusHeader } from '../../components/StatusHeader';
+import { StickerAlbum } from '../../components/StickerAlbum';
 import { StudioStage3D } from '../../components/StudioStage3D';
 import type {
   IPPodColorPreset,
+  PendingStickerDrop,
+  PlacedSticker,
   ScreenId,
   TrackItem,
 } from '../../content/homeContent';
@@ -16,6 +19,8 @@ export interface WebViewProps {
   isDeviceActive: boolean;
   powerStatus: PowerStatus;
   colorPreset: IPPodColorPreset;
+  placedStickers: PlacedSticker[];
+  pendingDrop: PendingStickerDrop | null;
   currentScreen: ScreenId;
   selectedIndex: number;
   activeProjectIndex: number;
@@ -26,6 +31,9 @@ export interface WebViewProps {
   showVolumeHud: boolean;
   statusFeedback: string | null;
   onSelectColor: (preset: IPPodColorPreset) => void;
+  onDropSticker: (drop: PendingStickerDrop) => void;
+  onPlaceSticker: (sticker: PlacedSticker) => void;
+  onConsumeDrop: () => void;
   onTogglePower: () => void;
   onVolumeUp: () => void;
   onVolumeDown: () => void;
@@ -45,6 +53,8 @@ export function WebView({
   isDeviceActive,
   powerStatus,
   colorPreset,
+  placedStickers,
+  pendingDrop,
   currentScreen,
   selectedIndex,
   activeProjectIndex,
@@ -55,6 +65,9 @@ export function WebView({
   showVolumeHud,
   statusFeedback,
   onSelectColor,
+  onDropSticker,
+  onPlaceSticker,
+  onConsumeDrop,
   onTogglePower,
   onVolumeUp,
   onVolumeDown,
@@ -89,6 +102,10 @@ export function WebView({
         volume={volume}
         showVolumeHud={showVolumeHud}
         statusFeedback={statusFeedback}
+        placedStickers={placedStickers}
+        pendingDrop={pendingDrop}
+        onPlaceSticker={onPlaceSticker}
+        onConsumeDrop={onConsumeDrop}
         onTogglePower={onTogglePower}
         onVolumeUp={onVolumeUp}
         onVolumeDown={onVolumeDown}
@@ -101,6 +118,11 @@ export function WebView({
         onNavigateScreen={onNavigateScreen}
         onOpenProjectDetail={onOpenProjectDetail}
         onExecuteProjectAction={onExecuteProjectAction}
+      />
+
+      <StickerAlbum
+        placedStickers={placedStickers}
+        onDropSticker={onDropSticker}
       />
 
       <ColorPicker

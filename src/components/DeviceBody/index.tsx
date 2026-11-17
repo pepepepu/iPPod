@@ -1,5 +1,5 @@
 import { Html, RoundedBox } from '@react-three/drei';
-import type { RefObject } from 'react';
+import { useMemo, type RefObject } from 'react';
 import {
   BsFillPlayFill,
   BsFillSkipBackwardFill,
@@ -7,16 +7,182 @@ import {
   BsPauseFill,
 } from 'react-icons/bs';
 import { ThemeProvider } from 'styled-components';
+import {
+  BufferAttribute,
+  BufferGeometry,
+  FrontSide,
+} from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import type {
-  IPPodColorPreset,
-  ScreenId,
-  TrackItem,
+import {
+  homeContent,
+  type IPPodColorPreset,
+  type PendingStickerDrop,
+  type PlacedSticker,
+  type ScreenId,
+  type StickerPreset,
+  type TrackItem,
 } from '../../content/homeContent';
 import { useDeviceBody } from '../../hooks/useDeviceBody';
 import { theme } from '../../styles/theme';
+import {
+  getBackplateEngravingTextures,
+  getSticker3DTextures,
+} from '../../utils/stickerCanvas';
 import { ScreenArea, type PowerStatus } from '../ScreenArea';
 import * as S from './styles';
+
+interface FoldedStickerMeshProps {
+  placed: PlacedSticker;
+  preset: StickerPreset;
+}
+
+function FoldedStickerMesh({ placed, preset }: FoldedStickerMeshProps) {
+  const { map, bumpMap, iridescenceMap } = useMemo(
+    () => getSticker3DTextures(preset.id),
+    [preset.id]
+  );
+
+  const geometry = useMemo(() => {
+    const segs = 32;
+    const geom = new BufferGeometry();
+    const numVerts = (segs + 1) * (segs + 1);
+    const positions = new Float32Array(numVerts * 3);
+    const uvs = new Float32Array(numVerts * 2);
+    const indices: number[] = [];
+
+    const [cx, cy, cz] = placed.position;
+    const isFront = cz >= 0;
+    const tilt = placed.rotation[2] || 0;
+    const cosT = Math.cos(tilt);
+    const sinT = Math.sin(tilt);
+
+    const w = preset.width3D * placed.scale;
+    const h = preset.height3D * placed.scale;
+
+    const halfBodyW = 1.35;
+    const halfBodyH = 2.25;
+    const edgeRadius = 0.14;
+    const flatW = halfBodyW - edgeRadius;
+    const flatH = halfBodyH - edgeRadius;
+
+    let ptr = 0;
+    let uvPtr = 0;
+
+    for (let iy = 0; iy <= segs; iy++) {
+      const vRatio = iy / segs;
+      const localY = (vRatio - 0.5) * h;
+
+      for (let ix = 0; ix <= segs; ix++) {
+        const uRatio = ix / segs;
+        const localX = (uRatio - 0.5) * w;
+
+        const orientedX = isFront ? localX : -localX;
+        const dx = orientedX * cosT - localY * sinT;
+        const dy = orientedX * sinT + localY * cosT;
+
+        const sx = cx + dx;
+        const sy = cy + dy;
+
+        let px = sx;
+        let py = sy;
+        let dropX = 0;
+        let dropY = 0;
+
+        if (Math.abs(sx) > flatW) {
+          const overX = Math.abs(sx) - flatW;
+          const angleX = Math.min(overX / edgeRadius, Math.PI / 2);
+          const extraSideX = Math.max(0, overX - (Math.PI / 2) * edgeRadius);
+          px = Math.sign(sx) * (flatW + Math.sin(angleX) * edgeRadius);
+          dropX = (1 - Math.cos(angleX)) * edgeRadius + extraSideX;
+        }
+
+        if (Math.abs(sy) > flatH) {
+          const overY = Math.abs(sy) - flatH;
+          const angleY = Math.min(overY / edgeRadius, Math.PI / 2);
+          const extraSideY = Math.max(0, overY - (Math.PI / 2) * edgeRadius);
+          py = Math.sign(sy) * (flatH + Math.sin(angleY) * edgeRadius);
+          dropY = (1 - Math.cos(angleY)) * edgeRadius + extraSideY;
+        }
+
+        const totalDrop = Math.min(0.13, dropX + dropY);
+
+        let pz = isFront ? 0.142 - totalDrop : -0.144 + totalDrop;
+
+        if (isFront && totalDrop < 0.02) {
+          const onBezelOuter =
+            Math.abs(px) <= 1.16 && py >= 0.24 && py <= 2.0;
+          const insideLcdOpening =
+            Math.abs(px) < 1.035 && py > 0.315 && py < 1.925;
+
+          if (insideLcdOpening) {
+            const dLeft = Math.abs(px - -1.035);
+            const dRight = Math.abs(1.035 - px);
+            const dBottom = Math.abs(py - 0.315);
+            const dTop = Math.abs(1.925 - py);
+            const minEdgeDist = Math.min(dLeft, dRight, dBottom, dTop);
+
+            if (minEdgeDist === dLeft) px = -1.035;
+            else if (minEdgeDist === dRight) px = 1.035;
+            else if (minEdgeDist === dBottom) py = 0.315;
+            else py = 1.925;
+
+            pz = Math.max(0.141, 0.163 - minEdgeDist * 0.45);
+          } else if (onBezelOuter) {
+            pz = 0.163;
+          }
+        }
+
+        positions[ptr++] = px;
+        positions[ptr++] = py;
+        positions[ptr++] = pz;
+
+        uvs[uvPtr++] = uRatio;
+        uvs[uvPtr++] = vRatio;
+      }
+    }
+
+    for (let iy = 0; iy < segs; iy++) {
+      for (let ix = 0; ix < segs; ix++) {
+        const a = iy * (segs + 1) + ix;
+        const b = iy * (segs + 1) + (ix + 1);
+        const c = (iy + 1) * (segs + 1) + ix;
+        const d = (iy + 1) * (segs + 1) + (ix + 1);
+
+        indices.push(a, b, d);
+        indices.push(a, d, c);
+      }
+    }
+
+    geom.setAttribute('position', new BufferAttribute(positions, 3));
+    geom.setAttribute('uv', new BufferAttribute(uvs, 2));
+    geom.setIndex(indices);
+    geom.computeVertexNormals();
+    return geom;
+  }, [placed, preset]);
+
+  return (
+    <mesh geometry={geometry}>
+      <meshPhysicalMaterial
+        map={map}
+        bumpMap={bumpMap}
+        bumpScale={0.004}
+        iridescence={0.95}
+        iridescenceIOR={1.35}
+        iridescenceThicknessRange={[140, 420]}
+        iridescenceMap={iridescenceMap}
+        clearcoat={1}
+        clearcoatRoughness={0.12}
+        roughness={0.22}
+        metalness={0.25}
+        transparent
+        alphaTest={0.08}
+        side={FrontSide}
+        polygonOffset
+        polygonOffsetFactor={-4}
+      />
+    </mesh>
+  );
+}
 
 export interface DeviceBodyProps {
   isMobile: boolean;
@@ -31,7 +197,11 @@ export interface DeviceBodyProps {
   volume: number;
   showVolumeHud: boolean;
   statusFeedback: string | null;
+  placedStickers: PlacedSticker[];
+  pendingDrop: PendingStickerDrop | null;
   controlsRef: RefObject<OrbitControlsImpl | null>;
+  onPlaceSticker: (sticker: PlacedSticker) => void;
+  onConsumeDrop: () => void;
   onTogglePower: () => void;
   onVolumeUp: () => void;
   onVolumeDown: () => void;
@@ -59,7 +229,11 @@ export function DeviceBody({
   volume,
   showVolumeHud,
   statusFeedback,
+  placedStickers,
+  pendingDrop,
   controlsRef,
+  onPlaceSticker,
+  onConsumeDrop,
   onTogglePower,
   onVolumeUp,
   onVolumeDown,
@@ -75,8 +249,11 @@ export function DeviceBody({
 }: DeviceBodyProps) {
   const {
     ipodGroupRef,
+    chassisMeshRef,
+    bezelMeshRef,
     wheelElementRef,
     isActive,
+    isFrontFacing,
     handleWheelScroll,
     handleWheelPointerDown,
     handleWheelPointerMove,
@@ -86,9 +263,14 @@ export function DeviceBody({
   } = useDeviceBody({
     powerStatus,
     controlsRef,
+    pendingDrop,
+    onPlaceSticker,
+    onConsumeDrop,
     onNext,
     onPrev,
   });
+
+  const backplateRelief = useMemo(() => getBackplateEngravingTextures(), []);
 
   return (
     <group ref={ipodGroupRef} scale={0.76}>
@@ -96,7 +278,7 @@ export function DeviceBody({
         args={[0.12, 0.48, 0.16]}
         radius={0.03}
         smoothness={4}
-        position={[1.38, 1.45, 0.01]}
+        position={[1.36, 1.45, 0]}
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
         onClick={(e) => {
@@ -105,9 +287,9 @@ export function DeviceBody({
         }}
       >
         <meshStandardMaterial
-          color={isActive ? '#39ff14' : colorPreset.backplateColor}
-          metalness={0.9}
-          roughness={0.2}
+          color={isActive ? '#39ff14' : colorPreset.bodyColor}
+          metalness={0.82}
+          roughness={0.28}
         />
       </RoundedBox>
 
@@ -115,60 +297,13 @@ export function DeviceBody({
         args={[0.12, 0.36, 0.16]}
         radius={0.03}
         smoothness={4}
-        position={[-1.38, 1.56, 0.01]}
+        position={[-1.36, 1.56, 0]}
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
         onClick={(e) => {
           e.stopPropagation();
           onVolumeUp();
         }}
-      >
-        <meshStandardMaterial
-          color={colorPreset.backplateColor}
-          metalness={0.92}
-          roughness={0.18}
-        />
-      </RoundedBox>
-
-      <RoundedBox
-        args={[0.12, 0.36, 0.16]}
-        radius={0.03}
-        smoothness={4}
-        position={[-1.38, 1.12, 0.01]}
-        onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}
-        onClick={(e) => {
-          e.stopPropagation();
-          onVolumeDown();
-        }}
-      >
-        <meshStandardMaterial
-          color={colorPreset.backplateColor}
-          metalness={0.92}
-          roughness={0.18}
-        />
-      </RoundedBox>
-
-      <RoundedBox
-        args={[2.75, 4.55, 0.28]}
-        radius={0.22}
-        smoothness={6}
-        position={[0, 0, -0.03]}
-      >
-        <meshStandardMaterial
-          color={colorPreset.backplateColor}
-          metalness={0.95}
-          roughness={0.12}
-        />
-      </RoundedBox>
-
-      <RoundedBox
-        args={[2.7, 4.5, 0.28]}
-        radius={0.2}
-        smoothness={6}
-        position={[0, 0, 0.02]}
-        castShadow
-        receiveShadow
       >
         <meshStandardMaterial
           color={colorPreset.bodyColor}
@@ -178,10 +313,60 @@ export function DeviceBody({
       </RoundedBox>
 
       <RoundedBox
+        args={[0.12, 0.36, 0.16]}
+        radius={0.03}
+        smoothness={4}
+        position={[-1.36, 1.12, 0]}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+        onClick={(e) => {
+          e.stopPropagation();
+          onVolumeDown();
+        }}
+      >
+        <meshStandardMaterial
+          color={colorPreset.bodyColor}
+          metalness={0.82}
+          roughness={0.28}
+        />
+      </RoundedBox>
+
+      <RoundedBox
+        ref={chassisMeshRef}
+        args={[2.7, 4.5, 0.28]}
+        radius={0.18}
+        smoothness={6}
+        position={[0, 0, 0]}
+        castShadow
+        receiveShadow
+      >
+        <meshStandardMaterial
+          color={colorPreset.bodyColor}
+          metalness={0.82}
+          roughness={0.26}
+        />
+      </RoundedBox>
+
+      <mesh position={[0, 0, -0.141]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[2.3, 3.8]} />
+        <meshStandardMaterial
+          map={backplateRelief.map}
+          bumpMap={backplateRelief.bumpMap}
+          bumpScale={0.016}
+          metalness={0.92}
+          roughness={0.18}
+          transparent
+          polygonOffset
+          polygonOffsetFactor={-1}
+        />
+      </mesh>
+
+      <RoundedBox
+        ref={bezelMeshRef}
         args={[2.32, 1.76, 0.04]}
         radius={0.06}
         smoothness={4}
-        position={[0, 1.12, 0.15]}
+        position={[0, 1.12, 0.14]}
       >
         <meshStandardMaterial
           color="#121417"
@@ -190,7 +375,32 @@ export function DeviceBody({
         />
       </RoundedBox>
 
-      <Html center transform distanceFactor={1.65} position={[0, 1.12, 0.18]}>
+      {placedStickers.map((placed) => {
+        const preset = homeContent.stickers.find(
+          (item) => item.id === placed.stickerId
+        );
+        if (!preset) return null;
+
+        return (
+          <FoldedStickerMesh
+            key={placed.instanceId}
+            placed={placed}
+            preset={preset}
+          />
+        );
+      })}
+
+      <Html
+        center
+        transform
+        distanceFactor={1.65}
+        position={[0, 1.12, 0.162]}
+        style={{
+          display: isFrontFacing ? 'block' : 'none',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+        }}
+      >
         <ThemeProvider theme={theme}>
           <ScreenArea
             isMobile={isMobile}
@@ -220,7 +430,7 @@ export function DeviceBody({
         </ThemeProvider>
       </Html>
 
-      <mesh position={[0, -0.98, 0.155]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh position={[0, -0.98, 0.135]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.82, 0.82, 0.03, 64]} />
         <meshStandardMaterial
           color={colorPreset.wheelColor}
@@ -229,7 +439,7 @@ export function DeviceBody({
         />
       </mesh>
 
-      <mesh position={[0, -0.98, 0.165]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh position={[0, -0.98, 0.145]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.29, 0.29, 0.035, 48]} />
         <meshStandardMaterial
           color={colorPreset.centerButtonColor}
@@ -238,7 +448,17 @@ export function DeviceBody({
         />
       </mesh>
 
-      <Html center transform distanceFactor={1.65} position={[0, -0.98, 0.19]}>
+      <Html
+        center
+        transform
+        distanceFactor={1.65}
+        position={[0, -0.98, 0.17]}
+        style={{
+          display: isFrontFacing ? 'block' : 'none',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+        }}
+      >
         <ThemeProvider theme={theme}>
           <S.WheelOverlay
             ref={wheelElementRef}

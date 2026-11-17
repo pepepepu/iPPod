@@ -2,7 +2,7 @@ import type { IPPodColorPreset, MainMenuItem } from '../types';
 
 export const deviceInfoContent = {
   deviceName: 'iPPod',
-  storageInfo: '160 GB',
+  storageInfo: '127GB',
 };
 
 export const colorPresetsContent: IPPodColorPreset[] = [
@@ -10,7 +10,7 @@ export const colorPresetsContent: IPPodColorPreset[] = [
     id: 'space-gray',
     name: 'Cinza Espacial',
     bodyColor: '#4d5259',
-    backplateColor: '#b8bec7',
+    backplateColor: '#4d5259',
     wheelColor: '#1b1d21',
     centerButtonColor: '#50555c',
     swatchHex: '#4d5259',
@@ -19,7 +19,7 @@ export const colorPresetsContent: IPPodColorPreset[] = [
     id: 'silver-classic',
     name: 'Prata Clássico',
     bodyColor: '#cfd5df',
-    backplateColor: '#eef2f6',
+    backplateColor: '#cfd5df',
     wheelColor: '#ffffff',
     centerButtonColor: '#cfd5df',
     swatchHex: '#cfd5df',
@@ -28,7 +28,7 @@ export const colorPresetsContent: IPPodColorPreset[] = [
     id: 'midnight-blue',
     name: 'Azul Metálico',
     bodyColor: '#1f3a60',
-    backplateColor: '#a3b8d7',
+    backplateColor: '#1f3a60',
     wheelColor: '#111c2d',
     centerButtonColor: '#2d5082',
     swatchHex: '#1f3a60',
@@ -37,7 +37,7 @@ export const colorPresetsContent: IPPodColorPreset[] = [
     id: 'y2k-lime',
     name: 'Verde Y2K',
     bodyColor: '#4d7c0f',
-    backplateColor: '#d9f99d',
+    backplateColor: '#4d7c0f',
     wheelColor: '#1a2e05',
     centerButtonColor: '#65a30d',
     swatchHex: '#65a30d',
@@ -46,7 +46,7 @@ export const colorPresetsContent: IPPodColorPreset[] = [
     id: 'cyber-pink',
     name: 'Rosa Cyber',
     bodyColor: '#9d174d',
-    backplateColor: '#fbcfe8',
+    backplateColor: '#9d174d',
     wheelColor: '#2e0716',
     centerButtonColor: '#be185d',
     swatchHex: '#be185d',
@@ -55,7 +55,7 @@ export const colorPresetsContent: IPPodColorPreset[] = [
     id: 'crimson-red',
     name: 'Vermelho Special',
     bodyColor: '#991b1b',
-    backplateColor: '#fecaca',
+    backplateColor: '#991b1b',
     wheelColor: '#1f0808',
     centerButtonColor: '#b91c1c',
     swatchHex: '#b91c1c',

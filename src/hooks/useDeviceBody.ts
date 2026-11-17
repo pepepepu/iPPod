@@ -1,19 +1,27 @@
-import { useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import {
   useEffect,
   useRef,
+  useState,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
   type WheelEvent,
 } from 'react';
-import type { Group } from 'three';
+import { Raycaster, Vector2, type Group, type Mesh } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type { PowerStatus } from '../components/ScreenArea';
+import type {
+  PendingStickerDrop,
+  PlacedSticker,
+} from '../content/homeContent';
 
 export interface UseDeviceBodyParams {
   powerStatus: PowerStatus;
   controlsRef: RefObject<OrbitControlsImpl | null>;
+  pendingDrop: PendingStickerDrop | null;
+  onPlaceSticker: (sticker: PlacedSticker) => void;
+  onConsumeDrop: () => void;
   onNext: () => void;
   onPrev: () => void;
 }
@@ -21,14 +29,104 @@ export interface UseDeviceBodyParams {
 export function useDeviceBody({
   powerStatus,
   controlsRef,
+  pendingDrop,
+  onPlaceSticker,
+  onConsumeDrop,
   onNext,
   onPrev,
 }: UseDeviceBodyParams) {
   const ipodGroupRef = useRef<Group>(null);
+  const chassisMeshRef = useRef<Mesh>(null);
+  const bezelMeshRef = useRef<Mesh>(null);
   const wheelElementRef = useRef<HTMLDivElement>(null);
   const lastWheelAngleRef = useRef<number | null>(null);
-  const { camera } = useThree();
+  const [isFrontFacing, setIsFrontFacing] = useState(true);
+  const { camera, gl } = useThree();
   const isActive = powerStatus !== 'off';
+
+  useFrame(() => {
+    if (!ipodGroupRef.current) return;
+    const localCam = ipodGroupRef.current.worldToLocal(
+      camera.position.clone()
+    );
+    const facingFront = localCam.z > 0.05;
+    if (facingFront !== isFrontFacing) {
+      setIsFrontFacing(facingFront);
+    }
+  });
+
+  useEffect(() => {
+    if (!pendingDrop) return;
+
+    if (
+      ipodGroupRef.current &&
+      chassisMeshRef.current &&
+      bezelMeshRef.current
+    ) {
+      const rect = gl.domElement.getBoundingClientRect();
+      const ndcX =
+        ((pendingDrop.clientX - rect.left) / rect.width) * 2 - 1;
+      const ndcY =
+        -((pendingDrop.clientY - rect.top) / rect.height) * 2 + 1;
+
+      const raycaster = new Raycaster();
+      raycaster.setFromCamera(new Vector2(ndcX, ndcY), camera);
+
+      const targets: Mesh[] = [
+        bezelMeshRef.current,
+        chassisMeshRef.current,
+      ];
+      const intersects = raycaster.intersectObjects(targets, false);
+
+      if (intersects.length > 0) {
+        const hit = intersects[0];
+        const localPoint = ipodGroupRef.current.worldToLocal(
+          hit.point.clone()
+        );
+        const localCam = ipodGroupRef.current.worldToLocal(
+          camera.position.clone()
+        );
+
+        const isFrontSide = localCam.z >= 0 && localPoint.z >= -0.02;
+
+        let blocked = false;
+        if (isFrontSide) {
+          const insideLcdGlass =
+            Math.abs(localPoint.x) < 1.01 &&
+            localPoint.y > 0.33 &&
+            localPoint.y < 1.91;
+          const distFromWheel = Math.hypot(
+            localPoint.x,
+            localPoint.y + 0.98
+          );
+          const insideWheel = distFromWheel < 0.84;
+
+          if (insideLcdGlass || insideWheel) {
+            blocked = true;
+          }
+        }
+
+        if (!blocked) {
+          const randomTilt = (Math.random() - 0.5) * 0.24;
+          onPlaceSticker({
+            instanceId: `stk-${Date.now()}-${Math.random()
+              .toString(36)
+              .slice(2, 6)}`,
+            stickerId: pendingDrop.stickerId,
+            position: [
+              localPoint.x,
+              localPoint.y,
+              isFrontSide ? 0.142 : -0.144,
+            ],
+            rotation: [0, isFrontSide ? 0 : Math.PI, randomTilt],
+            scale: 1,
+          });
+        }
+      }
+    }
+
+    onConsumeDrop();
+  }, [pendingDrop, camera, gl, onPlaceSticker, onConsumeDrop]);
 
   useEffect(() => {
     if (!ipodGroupRef.current) return;
@@ -163,8 +261,11 @@ export function useDeviceBody({
 
   return {
     ipodGroupRef,
+    chassisMeshRef,
+    bezelMeshRef,
     wheelElementRef,
     isActive,
+    isFrontFacing,
     handleWheelScroll,
     handleWheelPointerDown,
     handleWheelPointerMove,

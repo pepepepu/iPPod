@@ -17,6 +17,27 @@ export interface IPPodColorPreset {
   swatchHex: string;
 }
 
+export interface StickerPreset {
+  id: string;
+  name: string;
+  width3D: number;
+  height3D: number;
+}
+
+export interface PlacedSticker {
+  instanceId: string;
+  stickerId: string;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  scale: number;
+}
+
+export interface PendingStickerDrop {
+  stickerId: string;
+  clientX: number;
+  clientY: number;
+}
+
 export interface ProjectItem {
   id: string;
   trackNumber: string;

@@ -10,6 +10,8 @@ export function Home() {
     powerStatus,
     isDeviceActive,
     colorPreset,
+    placedStickers,
+    pendingDrop,
     currentScreen,
     selectedIndex,
     setSelectedIndex,
@@ -21,6 +23,9 @@ export function Home() {
     showVolumeHud,
     statusFeedback,
     handleSelectColor,
+    handlePlaceSticker,
+    handleDropSticker,
+    handleConsumeDrop,
     handleTurnOnOnly,
     handleTogglePower,
     handleVolumeUp,
@@ -77,6 +82,8 @@ export function Home() {
       isDeviceActive={isDeviceActive}
       powerStatus={powerStatus}
       colorPreset={colorPreset}
+      placedStickers={placedStickers}
+      pendingDrop={pendingDrop}
       currentScreen={currentScreen}
       selectedIndex={selectedIndex}
       activeProjectIndex={activeProjectIndex}
@@ -87,6 +94,9 @@ export function Home() {
       showVolumeHud={showVolumeHud}
       statusFeedback={statusFeedback}
       onSelectColor={handleSelectColor}
+      onDropSticker={handleDropSticker}
+      onPlaceSticker={handlePlaceSticker}
+      onConsumeDrop={handleConsumeDrop}
       onTogglePower={handleTogglePower}
       onVolumeUp={handleVolumeUp}
       onVolumeDown={handleVolumeDown}

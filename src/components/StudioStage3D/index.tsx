@@ -9,6 +9,8 @@ import { Suspense, type RefObject } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type {
   IPPodColorPreset,
+  PendingStickerDrop,
+  PlacedSticker,
   ScreenId,
   TrackItem,
 } from '../../content/homeContent';
@@ -30,6 +32,10 @@ export interface StudioStage3DProps {
   volume: number;
   showVolumeHud: boolean;
   statusFeedback: string | null;
+  placedStickers: PlacedSticker[];
+  pendingDrop: PendingStickerDrop | null;
+  onPlaceSticker: (sticker: PlacedSticker) => void;
+  onConsumeDrop: () => void;
   onTogglePower: () => void;
   onVolumeUp: () => void;
   onVolumeDown: () => void;
@@ -58,6 +64,10 @@ export function StudioStage3D({
   volume,
   showVolumeHud,
   statusFeedback,
+  placedStickers,
+  pendingDrop,
+  onPlaceSticker,
+  onConsumeDrop,
   onTogglePower,
   onVolumeUp,
   onVolumeDown,
@@ -103,7 +113,11 @@ export function StudioStage3D({
               volume={volume}
               showVolumeHud={showVolumeHud}
               statusFeedback={statusFeedback}
+              placedStickers={placedStickers}
+              pendingDrop={pendingDrop}
               controlsRef={controlsRef}
+              onPlaceSticker={onPlaceSticker}
+              onConsumeDrop={onConsumeDrop}
               onTogglePower={onTogglePower}
               onVolumeUp={onVolumeUp}
               onVolumeDown={onVolumeDown}
@@ -133,10 +147,8 @@ export function StudioStage3D({
           enableZoom={false}
           enablePan={false}
           enableRotate={!isDeviceActive}
-          minPolarAngle={Math.PI / 2 - 0.35}
-          maxPolarAngle={Math.PI / 2 + 0.35}
-          minAzimuthAngle={-0.45}
-          maxAzimuthAngle={0.45}
+          minPolarAngle={Math.PI / 2 - 0.45}
+          maxPolarAngle={Math.PI / 2 + 0.45}
         />
       </Canvas>
     </S.CanvasStage>

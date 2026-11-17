@@ -77,3 +77,40 @@ export const CenterSelectButton = styled.button`
   background: transparent;
   touch-action: manipulation;
 `;
+
+export const BackEngravingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.72;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+
+  span.brand {
+    font-family: ${theme.fonts.display};
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 3px;
+  }
+
+  span.capacity {
+    font-family: ${theme.fonts.display};
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 14px;
+    border: 2px solid rgba(255, 255, 255, 0.75);
+    border-radius: 6px;
+  }
+
+  span.serial {
+    font-family: ${theme.fonts.ui};
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    opacity: 0.8;
+  }
+`;

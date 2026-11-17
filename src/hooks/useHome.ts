@@ -10,6 +10,8 @@ import {
   getProjectDetailActions,
   homeContent,
   type IPPodColorPreset,
+  type PendingStickerDrop,
+  type PlacedSticker,
   type ScreenId,
   type TrackItem,
 } from '../content/homeContent';
@@ -18,6 +20,10 @@ import {
   saveColorPresetId,
 } from '../utils/colorStorage';
 import { fetchLastFmCurrentTrack } from '../utils/lastFMServices';
+import {
+  getSavedStickers,
+  savePlacedStickers,
+} from '../utils/stickerStorage';
 
 export function useHome() {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
@@ -32,6 +38,12 @@ export function useHome() {
   const [powerStatus, setPowerStatus] = useState<PowerStatus>('off');
   const [colorPreset, setColorPreset] = useState<IPPodColorPreset>(() =>
     getSavedColorPreset()
+  );
+  const [placedStickers, setPlacedStickers] = useState<PlacedSticker[]>(() =>
+    getSavedStickers()
+  );
+  const [pendingDrop, setPendingDrop] = useState<PendingStickerDrop | null>(
+    null
   );
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('home');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -115,6 +127,25 @@ export function useHome() {
   const handleSelectColor = (preset: IPPodColorPreset) => {
     setColorPreset(preset);
     saveColorPresetId(preset.id);
+  };
+
+  const handlePlaceSticker = (newSticker: PlacedSticker) => {
+    setPlacedStickers((prev) => {
+      if (prev.some((item) => item.stickerId === newSticker.stickerId)) {
+        return prev;
+      }
+      const updated = [...prev, newSticker];
+      savePlacedStickers(updated);
+      return updated;
+    });
+  };
+
+  const handleDropSticker = (drop: PendingStickerDrop) => {
+    setPendingDrop(drop);
+  };
+
+  const handleConsumeDrop = () => {
+    setPendingDrop(null);
   };
 
   const handleTurnOnOnly = () => {
@@ -372,6 +403,8 @@ export function useHome() {
     powerStatus,
     isDeviceActive,
     colorPreset,
+    placedStickers,
+    pendingDrop,
     currentScreen,
     selectedIndex,
     setSelectedIndex,
@@ -383,6 +416,9 @@ export function useHome() {
     showVolumeHud,
     statusFeedback,
     handleSelectColor,
+    handlePlaceSticker,
+    handleDropSticker,
+    handleConsumeDrop,
     handleTurnOnOnly,
     handleTogglePower,
     handleVolumeUp,
