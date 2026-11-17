@@ -2,12 +2,14 @@ import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 
 export const MobileWheelSection = styled.div`
+  --wheel-radius: clamp(107.5px, min(38vw, 20dvh), 150px);
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 0;
   padding: 8px 0;
+  position: relative;
 `;
 
 export const MobileClickWheel = styled.div<{ $wheelColor: string }>`
@@ -29,10 +31,32 @@ export const MobileClickWheel = styled.div<{ $wheelColor: string }>`
     inset 0 2px 5px rgba(255, 255, 255, 0.12),
     inset 0 -4px 8px rgba(0, 0, 0, 0.6);
   position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
   touch-action: none;
+`;
+
+export const MobileStickerBadge = styled.img<{
+  $cos: number;
+  $sin: number;
+  $offsetPx: number;
+  $rotateDeg: number;
+}>`
+  --badge-radius: calc(var(--wheel-radius) + ${({ $offsetPx }) => $offsetPx}px);
+  position: absolute;
+  left: calc(50% + var(--badge-radius) * ${({ $cos }) => $cos});
+  top: calc(50% + var(--badge-radius) * ${({ $sin }) => $sin});
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  transform: translate(-50%, -50%)
+    rotate(${({ $rotateDeg }) => $rotateDeg}deg);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.38));
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
 `;
 
 export const MobileWheelBtn = styled.button<{

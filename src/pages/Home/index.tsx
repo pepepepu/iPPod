@@ -50,6 +50,7 @@ export function Home() {
         powerStatus={powerStatus}
         isDeviceActive={isDeviceActive}
         colorPreset={colorPreset}
+        placedStickers={placedStickers}
         currentScreen={currentScreen}
         selectedIndex={selectedIndex}
         activeProjectIndex={activeProjectIndex}

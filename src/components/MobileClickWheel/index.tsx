@@ -6,6 +6,8 @@ import {
   BsPauseFill,
   BsPower,
 } from 'react-icons/bs';
+import type { PlacedSticker } from '../../content/homeContent';
+import { getStickerDataUrl } from '../../utils/stickerCanvas';
 import type { PowerStatus } from '../ScreenArea';
 import * as S from './styles';
 
@@ -15,6 +17,7 @@ export interface MobileClickWheelProps {
   centerButtonColor: string;
   powerStatus: PowerStatus;
   isDeviceActive: boolean;
+  placedStickers: PlacedSticker[];
   onTurnOnOnly: () => void;
   onMenuBack: () => void;
   onPrev: () => void;
@@ -32,6 +35,7 @@ export function MobileClickWheel({
   centerButtonColor,
   powerStatus,
   isDeviceActive,
+  placedStickers,
   onTurnOnOnly,
   onMenuBack,
   onPrev,
@@ -43,9 +47,41 @@ export function MobileClickWheel({
   onPointerUp,
 }: MobileClickWheelProps) {
   const isOn = powerStatus === 'on';
+  const wheelStickers = placedStickers.filter(
+    (item) => item.position[2] >= 0 && item.position[1] < 0.15
+  );
 
   return (
     <S.MobileWheelSection>
+      {wheelStickers.map((placed) => {
+        const [px, py] = placed.position;
+        const dx = px;
+        const dy = -(py + 0.98);
+        const angle = Math.atan2(dy, dx);
+        const dist3D = Math.hypot(dx, dy);
+        const cos = Number(Math.cos(angle).toFixed(4));
+        const sin = Number(Math.sin(angle).toFixed(4));
+        const offsetPx = Math.round(
+          Math.max(18, Math.min(46, 18 + (dist3D - 0.96) * 52))
+        );
+        const rotateDeg = Math.round(
+          ((placed.rotation[2] || 0) * 180) / Math.PI
+        );
+
+        return (
+          <S.MobileStickerBadge
+            key={placed.instanceId}
+            src={getStickerDataUrl(placed.stickerId)}
+            alt={placed.stickerId}
+            $cos={cos}
+            $sin={sin}
+            $offsetPx={offsetPx}
+            $rotateDeg={rotateDeg}
+            draggable={false}
+          />
+        );
+      })}
+
       <S.MobileClickWheel
         ref={wheelRef}
         $wheelColor={wheelColor}

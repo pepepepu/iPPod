@@ -109,26 +109,30 @@ function FoldedStickerMesh({ placed, preset }: FoldedStickerMeshProps) {
         let pz = isFront ? 0.142 - totalDrop : -0.144 + totalDrop;
 
         if (isFront && totalDrop < 0.02) {
-          const onBezelOuter =
-            Math.abs(px) <= 1.16 && py >= 0.24 && py <= 2.0;
+          const dxBezel = Math.max(0, Math.abs(px) - 1.14);
+          const dyBezel = Math.max(0, 0.26 - py, py - 1.98);
+          const distOutsideBezel = Math.hypot(dxBezel, dyBezel);
+
+          if (distOutsideBezel < 0.04) {
+            const bezelFactor = 1 - distOutsideBezel / 0.04;
+            pz = 0.142 + bezelFactor * 0.02;
+          }
+
           const insideLcdOpening =
-            Math.abs(px) < 1.035 && py > 0.315 && py < 1.925;
+            Math.abs(px) < 1.015 && py > 0.325 && py < 1.915;
 
           if (insideLcdOpening) {
-            const dLeft = Math.abs(px - -1.035);
-            const dRight = Math.abs(1.035 - px);
-            const dBottom = Math.abs(py - 0.315);
-            const dTop = Math.abs(1.925 - py);
+            const dLeft = Math.abs(px - -1.015);
+            const dRight = Math.abs(1.015 - px);
+            const dBottom = Math.abs(py - 0.325);
+            const dTop = Math.abs(1.915 - py);
             const minEdgeDist = Math.min(dLeft, dRight, dBottom, dTop);
 
-            if (minEdgeDist === dLeft) px = -1.035;
-            else if (minEdgeDist === dRight) px = 1.035;
-            else if (minEdgeDist === dBottom) py = 0.315;
-            else py = 1.925;
-
-            pz = Math.max(0.141, 0.163 - minEdgeDist * 0.45);
-          } else if (onBezelOuter) {
-            pz = 0.163;
+            if (minEdgeDist > 0.018) {
+              pz = 0.135;
+            } else {
+              pz = 0.162 - (minEdgeDist / 0.018) * 0.024;
+            }
           }
         }
 
@@ -394,7 +398,7 @@ export function DeviceBody({
         center
         transform
         distanceFactor={1.65}
-        position={[0, 1.12, 0.162]}
+        position={[0, 1.12, 0.166]}
         style={{
           display: isFrontFacing ? 'block' : 'none',
           backfaceVisibility: 'hidden',

@@ -35,6 +35,7 @@ export const MobileVirtualIPPod = styled.section<{
   justify-content: space-between;
   padding: 16px 14px 20px;
   overflow: hidden;
+  position: relative;
 `;
 
 export const MobileScreenBezel = styled.div`
@@ -44,9 +45,36 @@ export const MobileScreenBezel = styled.div`
   max-height: 430px;
   background: #121417;
   border-radius: 16px;
-  padding: 6px;
+  padding: 8px;
   box-shadow:
     inset 0 2px 6px rgba(0, 0, 0, 0.85),
     0 2px 0 rgba(255, 255, 255, 0.28);
   flex-shrink: 0;
+  position: relative;
+`;
+
+export const MobileBezelStickerBadge = styled.img<{
+  $leftPercent: number;
+  $topPercent: number;
+  $rotateDeg: number;
+}>`
+  position: absolute;
+  left: ${({ $leftPercent }) => $leftPercent}%;
+  top: ${({ $topPercent }) => $topPercent}%;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  transform: translate(-50%, -50%)
+    rotate(${({ $rotateDeg }) => $rotateDeg}deg);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.42));
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+`;
+
+export const MobileScreenInnerWrap = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 3;
 `;
