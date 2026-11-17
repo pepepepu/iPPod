@@ -214,6 +214,7 @@ export interface DeviceBodyProps {
   onSelect: () => void;
   onMenuBack: () => void;
   onPlayPause: () => void;
+  onSeekSeconds: (seconds: number) => void;
   onHoverIndex: (idx: number) => void;
   onNavigateScreen: (screen: ScreenId, idx?: number) => void;
   onOpenProjectDetail: (projectIdx: number) => void;
@@ -246,6 +247,7 @@ export function DeviceBody({
   onSelect,
   onMenuBack,
   onPlayPause,
+  onSeekSeconds,
   onHoverIndex,
   onNavigateScreen,
   onOpenProjectDetail,
@@ -424,6 +426,7 @@ export function DeviceBody({
             onSelect={onSelect}
             onMenuBack={onMenuBack}
             onPlayPause={onPlayPause}
+            onSeekSeconds={onSeekSeconds}
             onHoverIndex={onHoverIndex}
             onNavigateScreen={onNavigateScreen}
             onOpenProjectDetail={onOpenProjectDetail}

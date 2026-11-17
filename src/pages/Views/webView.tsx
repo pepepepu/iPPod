@@ -42,6 +42,7 @@ export interface WebViewProps {
   onSelect: () => void;
   onMenuBack: () => void;
   onPlayPause: () => void;
+  onSeekSeconds: (seconds: number) => void;
   onHoverIndex: (idx: number) => void;
   onNavigateScreen: (screen: ScreenId, idx?: number) => void;
   onOpenProjectDetail: (projectIdx: number) => void;
@@ -76,6 +77,7 @@ export function WebView({
   onSelect,
   onMenuBack,
   onPlayPause,
+  onSeekSeconds,
   onHoverIndex,
   onNavigateScreen,
   onOpenProjectDetail,
@@ -114,6 +116,7 @@ export function WebView({
         onSelect={onSelect}
         onMenuBack={onMenuBack}
         onPlayPause={onPlayPause}
+        onSeekSeconds={onSeekSeconds}
         onHoverIndex={onHoverIndex}
         onNavigateScreen={onNavigateScreen}
         onOpenProjectDetail={onOpenProjectDetail}

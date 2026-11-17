@@ -30,6 +30,7 @@ export function Home() {
     handleTogglePower,
     handleVolumeUp,
     handleVolumeDown,
+    handleSeekSeconds,
     navigateToScreen,
     handleOpenProjectDetail,
     executeProjectAction,
@@ -66,6 +67,7 @@ export function Home() {
         onSelect={handleSelect}
         onMenuBack={handleMenuBack}
         onPlayPause={handlePlayPause}
+        onSeekSeconds={handleSeekSeconds}
         onHoverIndex={setSelectedIndex}
         onNavigateScreen={navigateToScreen}
         onOpenProjectDetail={handleOpenProjectDetail}
@@ -106,6 +108,7 @@ export function Home() {
       onSelect={handleSelect}
       onMenuBack={handleMenuBack}
       onPlayPause={handlePlayPause}
+      onSeekSeconds={handleSeekSeconds}
       onHoverIndex={setSelectedIndex}
       onNavigateScreen={navigateToScreen}
       onOpenProjectDetail={handleOpenProjectDetail}

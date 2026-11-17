@@ -76,6 +76,7 @@ export interface TrackItem {
   coverUrl?: string;
   isLiveNow?: boolean;
   trackUrl?: string;
+  previewUrl?: string;
 }
 
 export interface ContactLinkItem {

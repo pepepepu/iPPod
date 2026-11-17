@@ -1,26 +1,54 @@
+import type { MouseEvent } from 'react';
+import {
+  BsBoxArrowUpRight,
+  BsFillPlayFill,
+  BsFillSkipBackwardFill,
+  BsFillSkipForwardFill,
+  BsPauseFill,
+} from 'react-icons/bs';
 import type { TrackItem } from '../../content/homeContent';
 import * as S from './styles';
 
 export interface NowPlayingScreenProps {
+  isMobile?: boolean;
   currentTrack: TrackItem;
   elapsedSeconds: number;
+  isPlaying?: boolean;
+  onPlayPause?: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  onSeekSeconds?: (seconds: number) => void;
 }
 
 export function NowPlayingScreen({
+  isMobile = false,
   currentTrack,
   elapsedSeconds,
+  isPlaying = false,
+  onPlayPause,
+  onPrev,
+  onNext,
+  onSeekSeconds,
 }: NowPlayingScreenProps) {
-  const progressPercent = Math.min(
-    100,
-    (elapsedSeconds / currentTrack.duration) * 100
-  );
-  const remaining = Math.max(0, currentTrack.duration - elapsedSeconds);
-  const isLive = Boolean(currentTrack.isLiveNow);
+  const duration = Math.max(1, currentTrack.duration);
+  const progressPercent = Math.min(100, (elapsedSeconds / duration) * 100);
+  const remaining = Math.max(0, duration - elapsedSeconds);
 
   const formatTime = (secs: number) => {
-    const mins = Math.floor(secs / 60);
-    const rem = secs % 60;
+    const clean = Math.max(0, Math.floor(secs));
+    const mins = Math.floor(clean / 60);
+    const rem = clean % 60;
     return `${mins}:${rem < 10 ? '0' : ''}${rem}`;
+  };
+
+  const handleBarClick = (e: MouseEvent<HTMLDivElement>) => {
+    if (!onSeekSeconds) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(
+      0,
+      Math.min(1, (e.clientX - rect.left) / rect.width)
+    );
+    onSeekSeconds(Math.round(ratio * duration));
   };
 
   return (
@@ -28,7 +56,7 @@ export function NowPlayingScreen({
       <S.NowPlayingGrid>
         <S.Y2KGradientCover
           $gradient={currentTrack.y2kGradient}
-          $size={145}
+          $size={138}
           onClick={() => {
             if (currentTrack.trackUrl) {
               window.open(
@@ -48,22 +76,77 @@ export function NowPlayingScreen({
           ) : (
             <S.AlbumOpticalRing />
           )}
-          <S.ArtworkBadge>LIVE • SPOTIFY</S.ArtworkBadge>
         </S.Y2KGradientCover>
 
         <S.TrackMeta>
-          <S.LiveStatusPill $isLive={isLive}>
-            <S.LivePulseDot $isLive={isLive} />
-            <span>OUVINDO AGORA • {currentTrack.number}</span>
-          </S.LiveStatusPill>
           <h2>{currentTrack.title}</h2>
           <p className="artist">{currentTrack.artist}</p>
           <p className="album">{currentTrack.album}</p>
+
+          {!isMobile && (
+            <S.InScreenPlayerRow>
+              <S.InScreenPlayerBtn
+                type="button"
+                onClick={onPrev}
+                title="Voltar 3 segundos"
+              >
+                <BsFillSkipBackwardFill size={11} />
+                <span>-3s</span>
+              </S.InScreenPlayerBtn>
+
+              <S.InScreenPlayerBtn
+                type="button"
+                $primary
+                onClick={onPlayPause}
+                title={isPlaying ? 'Pausar prévia' : 'Tocar prévia'}
+              >
+                {isPlaying ? (
+                  <>
+                    <BsPauseFill size={14} />
+                    <span>PAUSE</span>
+                  </>
+                ) : (
+                  <>
+                    <BsFillPlayFill size={14} />
+                    <span>PLAY</span>
+                  </>
+                )}
+              </S.InScreenPlayerBtn>
+
+              <S.InScreenPlayerBtn
+                type="button"
+                onClick={onNext}
+                title="Avançar 3 segundos"
+              >
+                <span>+3s</span>
+                <BsFillSkipForwardFill size={11} />
+              </S.InScreenPlayerBtn>
+
+              {currentTrack.trackUrl && (
+                <S.InScreenPlayerBtn
+                  type="button"
+                  title="Abrir no Last.fm"
+                  onClick={() =>
+                    window.open(
+                      currentTrack.trackUrl,
+                      '_blank',
+                      'noopener,noreferrer'
+                    )
+                  }
+                >
+                  <BsBoxArrowUpRight size={10} />
+                </S.InScreenPlayerBtn>
+              )}
+            </S.InScreenPlayerRow>
+          )}
         </S.TrackMeta>
       </S.NowPlayingGrid>
 
       <S.ScrubberContainer>
-        <S.ScrubberBar>
+        <S.ScrubberBar
+          onClick={handleBarClick}
+          style={{ cursor: onSeekSeconds ? 'pointer' : 'default' }}
+        >
           <S.ScrubberFill $percent={progressPercent} />
         </S.ScrubberBar>
         <S.ScrubberTimeRow>

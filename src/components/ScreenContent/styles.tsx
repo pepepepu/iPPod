@@ -399,10 +399,10 @@ export const ActionButtonsList = styled.div`
 
 export const NowPlayingGrid = styled.div`
   display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 16px;
+  grid-template-columns: 145px 1fr;
+  gap: 14px;
   align-items: center;
-  margin-top: 6px;
+  margin-top: 2px;
 
   @media (max-width: 768px) {
     grid-template-columns: 86px 1fr;
@@ -414,11 +414,11 @@ export const NowPlayingGrid = styled.div`
 export const TrackMeta = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
 
   h2 {
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 700;
     color: #14181f;
     white-space: nowrap;
@@ -427,7 +427,7 @@ export const TrackMeta = styled.div`
   }
 
   p.artist {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #1362d6;
     white-space: nowrap;
@@ -436,7 +436,7 @@ export const TrackMeta = styled.div`
   }
 
   p.album {
-    font-size: 12px;
+    font-size: 11.5px;
     color: #5a6578;
     white-space: nowrap;
     overflow: hidden;
@@ -454,6 +454,51 @@ export const TrackMeta = styled.div`
     p.album {
       font-size: 10px;
     }
+  }
+`;
+
+export const InScreenPlayerRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+export const InScreenPlayerBtn = styled.button<{ $primary?: boolean }>`
+  height: ${({ $primary }) => ($primary ? '30px' : '26px')};
+  min-width: ${({ $primary }) => ($primary ? '36px' : '28px')};
+  padding: 0 8px;
+  border-radius: 6px;
+  background: ${({ $primary }) =>
+    $primary
+      ? theme.gradients.activeSelection
+      : 'linear-gradient(180deg, #ffffff 0%, #dce4f0 100%)'};
+  color: ${({ $primary }) => ($primary ? '#ffffff' : '#1f2633')};
+  border: 1px solid
+    ${({ $primary }) => ($primary ? '#0f4da8' : '#9aa6b8')};
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: ${theme.fonts.display};
+  font-size: 9px;
+  font-weight: 700;
+  transition: transform 0.12s ease, filter 0.12s ease;
+
+  &:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
@@ -496,7 +541,7 @@ export const ScrubberContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin-top: 8px;
+  margin-top: 6px;
 `;
 
 export const ScrubberBar = styled.div`
@@ -518,7 +563,7 @@ export const ScrubberFill = styled.div<{ $percent: number }>`
     #257ce8 50%,
     #0e52b5 100%
   );
-  transition: width 0.3s linear;
+  transition: width 0.2s linear;
 `;
 
 export const ScrubberTimeRow = styled.div`

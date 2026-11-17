@@ -31,6 +31,7 @@ export function useHome() {
   const lastMobileAngleRef = useRef<number | null>(null);
   const bootTimerRef = useRef<number | null>(null);
   const volumeTimerRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [isMobile, setIsMobile] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth <= 768 : false
@@ -55,13 +56,85 @@ export function useHome() {
   const [currentTrack, setCurrentTrack] = useState<TrackItem>(() => ({
     ...homeContent.tracks[0],
     number: 'Faixa 01 de 01',
+    duration: 30,
     isLiveNow: true,
   }));
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [elapsedSeconds, setElapsedSeconds] = useState(48);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [volume, setVolume] = useState(70);
   const [showVolumeHud, setShowVolumeHud] = useState(false);
   const [statusFeedback, setStatusFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audio.loop = true;
+    audio.volume = 0.7;
+
+    const handleTimeUpdate = () => {
+      setElapsedSeconds(Math.floor(audio.currentTime));
+    };
+
+    const handleLoadedMetadata = () => {
+      if (audio.duration && Number.isFinite(audio.duration)) {
+        const dur = Math.round(audio.duration);
+        setCurrentTrack((prev) =>
+          prev.duration === dur ? prev : { ...prev, duration: dur }
+        );
+      }
+    };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audioRef.current = audio;
+
+    return () => {
+      audio.pause();
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audioRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentTrack.previewUrl) return;
+
+    if (audio.src !== currentTrack.previewUrl) {
+      audio.src = currentTrack.previewUrl;
+      audio.currentTime = 0;
+      setElapsedSeconds(0);
+      if (powerStatus === 'on' && isPlaying) {
+        void audio.play().catch(() => {
+          setIsPlaying(false);
+        });
+      }
+    }
+  }, [currentTrack.previewUrl, powerStatus, isPlaying]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (powerStatus !== 'on') {
+      audio.pause();
+      return;
+    }
+
+    if (isPlaying && currentTrack.previewUrl) {
+      void audio.play().catch(() => {
+        setIsPlaying(false);
+      });
+    } else {
+      audio.pause();
+    }
+  }, [powerStatus, isPlaying, currentTrack.previewUrl]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = Math.max(0, Math.min(1, volume / 100));
+    }
+  }, [volume]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -85,9 +158,15 @@ export function useHome() {
       const latest = await fetchLastFmCurrentTrack();
       if (isMounted) {
         setCurrentTrack((prev) => {
-          if (prev.title !== latest.title || prev.artist !== latest.artist) {
-            setElapsedSeconds(12);
+          if (prev.title === latest.title && prev.artist === latest.artist) {
+            return {
+              ...prev,
+              coverUrl: latest.coverUrl || prev.coverUrl,
+              previewUrl: latest.previewUrl || prev.previewUrl,
+              trackUrl: latest.trackUrl || prev.trackUrl,
+            };
           }
+          setElapsedSeconds(0);
           return latest;
         });
       }
@@ -177,6 +256,7 @@ export function useHome() {
       handleTurnOnOnly();
     } else {
       clearBootTimer();
+      setIsPlaying(false);
       setPowerStatus('off');
     }
   };
@@ -201,10 +281,33 @@ export function useHome() {
     triggerVolumeHud(Math.max(0, volume - 10));
   };
 
+  const handleSeekSeconds = (targetSeconds: number) => {
+    const clamped = Math.max(
+      0,
+      Math.min(currentTrack.duration - 1, targetSeconds)
+    );
+    setElapsedSeconds(clamped);
+    if (audioRef.current) {
+      audioRef.current.currentTime = clamped;
+    }
+  };
+
   const navigateToScreen = (nextScreen: ScreenId, initialIdx = 0) => {
     setCurrentScreen(nextScreen);
     setSelectedIndex(initialIdx);
     setStatusFeedback(null);
+
+    if (nextScreen === 'now-playing') {
+      setIsPlaying(true);
+      if (audioRef.current && currentTrack.previewUrl) {
+        if (audioRef.current.src !== currentTrack.previewUrl) {
+          audioRef.current.src = currentTrack.previewUrl;
+        }
+        void audioRef.current.play().catch(() => {
+          setIsPlaying(false);
+        });
+      }
+    }
   };
 
   const handleOpenProjectDetail = (idx: number) => {
@@ -233,9 +336,7 @@ export function useHome() {
   const handleNext = () => {
     if (powerStatus !== 'on') return;
     if (currentScreen === 'now-playing') {
-      setElapsedSeconds((prev) =>
-        Math.min(currentTrack.duration - 1, prev + 15)
-      );
+      handleSeekSeconds(elapsedSeconds + 3);
       return;
     }
     const len = getListLength(currentScreen);
@@ -245,7 +346,7 @@ export function useHome() {
   const handlePrev = () => {
     if (powerStatus !== 'on') return;
     if (currentScreen === 'now-playing') {
-      setElapsedSeconds((prev) => Math.max(0, prev - 15));
+      handleSeekSeconds(elapsedSeconds - 3);
       return;
     }
     const len = getListLength(currentScreen);
@@ -273,11 +374,7 @@ export function useHome() {
     }
 
     if (currentScreen === 'now-playing') {
-      if (currentTrack.trackUrl) {
-        window.open(currentTrack.trackUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        setIsPlaying((prev) => !prev);
-      }
+      setIsPlaying((prev) => !prev);
       return;
     }
 
@@ -360,19 +457,6 @@ export function useHome() {
   }, []);
 
   useEffect(() => {
-    if (powerStatus !== 'on' || !isPlaying) return;
-    const timer = window.setInterval(() => {
-      setElapsedSeconds((prev) => {
-        if (prev + 1 >= currentTrack.duration) {
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, [powerStatus, isPlaying, currentTrack.duration]);
-
-  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() === 'p') {
         event.preventDefault();
@@ -437,6 +521,7 @@ export function useHome() {
     handleTogglePower,
     handleVolumeUp,
     handleVolumeDown,
+    handleSeekSeconds,
     navigateToScreen,
     handleOpenProjectDetail,
     executeProjectAction,

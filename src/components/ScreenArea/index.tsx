@@ -39,6 +39,7 @@ export interface ScreenAreaProps {
   onSelect: () => void;
   onMenuBack: () => void;
   onPlayPause: () => void;
+  onSeekSeconds?: (seconds: number) => void;
   onHoverIndex: (index: number) => void;
   onNavigateScreen: (screen: ScreenId, index?: number) => void;
   onOpenProjectDetail: (projectIdx: number) => void;
@@ -63,6 +64,7 @@ export function ScreenArea({
   onSelect,
   onMenuBack,
   onPlayPause,
+  onSeekSeconds,
   onHoverIndex,
   onNavigateScreen,
   onOpenProjectDetail,
@@ -172,8 +174,14 @@ export function ScreenArea({
       case 'now-playing':
         return (
           <NowPlayingScreen
+            isMobile={isMobile}
             currentTrack={currentTrack}
             elapsedSeconds={elapsedSeconds}
+            isPlaying={isPlaying}
+            onPlayPause={onPlayPause}
+            onPrev={onPrev}
+            onNext={onNext}
+            onSeekSeconds={onSeekSeconds}
           />
         );
       case 'contact':
@@ -222,11 +230,11 @@ export function ScreenArea({
           </S.FooterControlBtn>
           <S.FooterControlBtn type="button" onClick={onPrev}>
             <S.FooterKeyBadge>|&lt;&lt;</S.FooterKeyBadge>
-            <span>Cima</span>
+            <span>{currentScreen === 'now-playing' ? '-3s' : 'Cima'}</span>
           </S.FooterControlBtn>
           <S.FooterControlBtn type="button" onClick={onNext}>
             <S.FooterKeyBadge>&gt;&gt;|</S.FooterKeyBadge>
-            <span>Baixo</span>
+            <span>{currentScreen === 'now-playing' ? '+3s' : 'Baixo'}</span>
           </S.FooterControlBtn>
           <S.FooterControlBtn type="button" onClick={onPlayPause}>
             <S.FooterKeyBadge>▶||</S.FooterKeyBadge>
@@ -249,11 +257,11 @@ export function ScreenArea({
           </S.FooterControlBtn>
           <S.FooterControlBtn type="button" onClick={onPrev}>
             <S.FooterKeyBadge>↑</S.FooterKeyBadge>
-            <span>Cima</span>
+            <span>{currentScreen === 'now-playing' ? '-3s' : 'Cima'}</span>
           </S.FooterControlBtn>
           <S.FooterControlBtn type="button" onClick={onNext}>
             <S.FooterKeyBadge>↓</S.FooterKeyBadge>
-            <span>Baixo</span>
+            <span>{currentScreen === 'now-playing' ? '+3s' : 'Baixo'}</span>
           </S.FooterControlBtn>
           <S.FooterControlBtn type="button" onClick={onTogglePower}>
             <S.FooterKeyBadge>P</S.FooterKeyBadge>
