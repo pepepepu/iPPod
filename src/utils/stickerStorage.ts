@@ -1,6 +1,7 @@
 import { homeContent, type PlacedSticker } from '../content/homeContent';
 
-const STICKER_STORAGE_KEY = '@ippod:placed-stickers-v4';
+const DESKTOP_STICKER_STORAGE_KEY = '@ippod:desktop-placed-stickers';
+const MOBILE_STICKER_STORAGE_KEY = '@ippod:mobile-placed-stickers';
 
 function randomBetween(min: number, max: number): number {
   return min + Math.random() * (max - min);
@@ -34,7 +35,11 @@ function sampleAroundWheelPoint(): [number, number] {
     const x = randomBetween(-1.22, 1.22);
     const y = randomBetween(-2.1, 0.1);
     const distToWheel = Math.hypot(x, y + 0.98);
-    if (distToWheel >= 0.98 && distToWheel <= 1.46 && !isInsideForbiddenZone(x, y)) {
+    if (
+      distToWheel >= 0.98 &&
+      distToWheel <= 1.46 &&
+      !isInsideForbiddenZone(x, y)
+    ) {
       return [x, y];
     }
   }
@@ -73,7 +78,8 @@ function generateInitialRandomStickers(): PlacedSticker[] {
             )
           );
 
-      const targetThreshold = attempt < 60 ? 0.86 : attempt < 95 ? 0.72 : 0.6;
+      const targetThreshold =
+        attempt < 60 ? 0.86 : attempt < 95 ? 0.72 : 0.6;
 
       if (minDistToOthers >= targetThreshold) {
         bestPoint = candidate;
@@ -103,19 +109,28 @@ function generateInitialRandomStickers(): PlacedSticker[] {
   });
 }
 
-export function getSavedStickers(): PlacedSticker[] {
+export function getSavedStickers(isMobile = false): PlacedSticker[] {
   try {
-    const raw = window.localStorage.getItem(STICKER_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as PlacedSticker[];
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+    if (!isMobile) {
+      const rawDesktop = window.localStorage.getItem(
+        DESKTOP_STICKER_STORAGE_KEY
+      );
+      if (!rawDesktop) return [];
+      const parsedDesktop = JSON.parse(rawDesktop) as PlacedSticker[];
+      return Array.isArray(parsedDesktop) ? parsedDesktop : [];
+    }
+
+    const rawMobile = window.localStorage.getItem(MOBILE_STICKER_STORAGE_KEY);
+    if (rawMobile) {
+      const parsedMobile = JSON.parse(rawMobile) as PlacedSticker[];
+      if (Array.isArray(parsedMobile) && parsedMobile.length > 0) {
+        return parsedMobile;
       }
     }
 
     const generated = generateInitialRandomStickers();
     window.localStorage.setItem(
-      STICKER_STORAGE_KEY,
+      MOBILE_STICKER_STORAGE_KEY,
       JSON.stringify(generated)
     );
     return generated;
@@ -124,9 +139,15 @@ export function getSavedStickers(): PlacedSticker[] {
   }
 }
 
-export function savePlacedStickers(stickers: PlacedSticker[]): void {
+export function savePlacedStickers(
+  stickers: PlacedSticker[],
+  isMobile = false
+): void {
   try {
-    window.localStorage.setItem(STICKER_STORAGE_KEY, JSON.stringify(stickers));
+    const key = isMobile
+      ? MOBILE_STICKER_STORAGE_KEY
+      : DESKTOP_STICKER_STORAGE_KEY;
+    window.localStorage.setItem(key, JSON.stringify(stickers));
   } catch {
     return;
   }

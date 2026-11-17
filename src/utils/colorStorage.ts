@@ -1,13 +1,27 @@
 import { homeContent, type IPPodColorPreset } from '../content/homeContent';
 
-const COLOR_STORAGE_KEY = '@ippod:color-preset-id-v2';
+const DESKTOP_COLOR_STORAGE_KEY = '@ippod:desktop-color-preset-id';
+const MOBILE_COLOR_STORAGE_KEY = '@ippod:mobile-color-preset-id';
 
-export function getSavedColorPreset(): IPPodColorPreset {
+export function getSavedColorPreset(isMobile = false): IPPodColorPreset {
   try {
-    const savedId = window.localStorage.getItem(COLOR_STORAGE_KEY);
-    if (savedId) {
+    if (!isMobile) {
+      const savedDesktopId = window.localStorage.getItem(
+        DESKTOP_COLOR_STORAGE_KEY
+      );
+      if (savedDesktopId) {
+        const found = homeContent.colorPresets.find(
+          (item) => item.id === savedDesktopId
+        );
+        if (found) return found;
+      }
+      return homeContent.colorPresets[0];
+    }
+
+    const savedMobileId = window.localStorage.getItem(MOBILE_COLOR_STORAGE_KEY);
+    if (savedMobileId) {
       const found = homeContent.colorPresets.find(
-        (item) => item.id === savedId
+        (item) => item.id === savedMobileId
       );
       if (found) return found;
     }
@@ -18,16 +32,19 @@ export function getSavedColorPreset(): IPPodColorPreset {
     const randomPreset =
       homeContent.colorPresets[randomIndex] || homeContent.colorPresets[0];
 
-    window.localStorage.setItem(COLOR_STORAGE_KEY, randomPreset.id);
+    window.localStorage.setItem(MOBILE_COLOR_STORAGE_KEY, randomPreset.id);
     return randomPreset;
   } catch {
     return homeContent.colorPresets[0];
   }
 }
 
-export function saveColorPresetId(presetId: string): void {
+export function saveColorPresetId(presetId: string, isMobile = false): void {
   try {
-    window.localStorage.setItem(COLOR_STORAGE_KEY, presetId);
+    const key = isMobile
+      ? MOBILE_COLOR_STORAGE_KEY
+      : DESKTOP_COLOR_STORAGE_KEY;
+    window.localStorage.setItem(key, presetId);
   } catch {
     return;
   }
