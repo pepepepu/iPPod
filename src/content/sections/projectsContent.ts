@@ -13,7 +13,7 @@ export const projectsContent: ProjectItem[] = [
     y2kGradient:
       'linear-gradient(135deg, #ff007f 0%, #7928ca 48%, #00f0ff 100%)',
     discCode: 'CD-01 // AURA',
-    liveUrl: 'https://musical-aura.vercell.app/',
+    liveUrl: 'https://aaauraaa.vercel.app',
     liveLabel: 'Visitar Site',
     repoUrl: 'https://github.com/pepepepu/aura',
   },
